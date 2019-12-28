@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29318.209
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgonesSdk", "src\AgonesSdk\AgonesSdk.csproj", "{2BB56278-D656-4CC4-89E1-02250C9C260B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2BB56278-D656-4CC4-89E1-02250C9C260B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB56278-D656-4CC4-89E1-02250C9C260B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB56278-D656-4CC4-89E1-02250C9C260B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB56278-D656-4CC4-89E1-02250C9C260B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A0E861D6-65B9-47EE-BC62-F5A4993D7739}
+	EndGlobalSection
+EndGlobal
