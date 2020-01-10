@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgonesSdk.Internals
+namespace AgonesSdk.Hosting.Internals
 {
     internal class AgonesSdkConfigurationSource : IConfigurationSource
     {
