@@ -9,6 +9,7 @@ namespace AgonesSdk
     public class MockAgonesSdk : IAgonesSdk
     {
         public bool HealthEnabled { get; set; } = true;
+        public AgonesSdkSettings Settings => new AgonesSdkSettings();
 
         public Task Allocate(CancellationToken ct = default)
         {
