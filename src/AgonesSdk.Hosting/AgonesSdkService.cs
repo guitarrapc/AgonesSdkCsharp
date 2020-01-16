@@ -16,17 +16,7 @@ namespace AgonesSdk.Hosting
 
         public static IHostBuilder AddAgonesSdk(this IHostBuilder hostBuilder, bool registerHostedService = true)
         {
-            static void configureDefaultHttpClient(IServiceCollection services, AgonesSdkSettings settings)
-            {
-                services.AddHttpClient(settings.HttpClientName, client => client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")))
-                            .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retry => ExponentialBackkoff(retry)))
-                            .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
-            }
-
-            return hostBuilder.ConfigureServices((hostContext, services) =>
-            {
-                ConfigureAgonesService(services, defaultSettings.Value, configureDefaultHttpClient, registerHostedService);
-            });
+            return hostBuilder.AddAgonesSdk(defaultSettings.Value, registerHostedService);
         }
         public static IHostBuilder AddAgonesSdk(this IHostBuilder hostBuilder, AgonesSdkSettings settings, bool registerHostedService = true)
         {
