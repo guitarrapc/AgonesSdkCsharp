@@ -15,7 +15,7 @@ namespace AgonesSdkCsharp
         /// <summary>
         /// HttpClientName for AgonesSdk
         /// </summary>
-        public string HttpClientUserAgent { get; set; } = "AgonesSdk.Net";
+        public string HttpClientUserAgent { get; set; } = "AgonesSdkCsharp";
         /// <summary>
         /// Determine cache request
         /// </summary>

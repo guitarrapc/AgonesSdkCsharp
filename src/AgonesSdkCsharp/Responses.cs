@@ -7,58 +7,58 @@ namespace AgonesSdkCsharp
     public class GameServerResponse
     {
         [JsonPropertyName("object/meta")]
-        public Object_Meta object_meta { get; set; }
+        public ObjectMeta ObjectMeta { get; set; }
         [JsonPropertyName("status")]
-        public Status status { get; set; }
+        public Status Status { get; set; }
+    }
 
-        public class Object_Meta
-        {
-            [JsonPropertyName("name")]
-            public string name { get; set; }
-            [JsonPropertyName("namespace")]
-            public string @namespace { get; set; }
-            [JsonPropertyName("uid")]
-            public string uid { get; set; }
-            [JsonPropertyName("resource/version")]
-            public string resource_version { get; set; }
-            [JsonPropertyName("generation")]
-            public string generation { get; set; }
-            [JsonPropertyName("creation/timestamp")]
-            public string creation_timestamp { get; set; }
-            [JsonPropertyName("annotations")]
-            public Annotations annotations { get; set; }
-            [JsonPropertyName("labels")]
-            public Labels labels { get; set; }
-        }
+    public class ObjectMeta
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("namespace")]
+        public string Namespace { get; set; }
+        [JsonPropertyName("uid")]
+        public string Uid { get; set; }
+        [JsonPropertyName("resource/version")]
+        public string ResourceVersion { get; set; }
+        [JsonPropertyName("generation")]
+        public string Generation { get; set; }
+        [JsonPropertyName("creation/timestamp")]
+        public string CreationTimestamp { get; set; }
+        [JsonPropertyName("annotations")]
+        public Annotation[] Annotations { get; set; }
+        [JsonPropertyName("labels")]
+        public Label[] Labels { get; set; }
+    }
 
-        public class Annotations
-        {
-            [JsonPropertyName("annotation")]
-            public string annotation { get; set; }
-        }
+    public class Annotation
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
 
-        public class Labels
-        {
-            [JsonPropertyName("islocal")]
-            public string islocal { get; set; }
-        }
+    public class Label
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
 
-        public class Status
-        {
-            [JsonPropertyName("state")]
-            public string state { get; set; }
-            [JsonPropertyName("address")]
-            public string address { get; set; }
-            [JsonPropertyName("ports")]
-            public Port[] ports { get; set; }
-        }
+    public class Status
+    {
+        [JsonPropertyName("state")]
+        public string State { get; set; }
+        [JsonPropertyName("address")]
+        public string Address { get; set; }
+        [JsonPropertyName("ports")]
+        public PortInfo[] Ports { get; set; }
+    }
 
-        public class Port
-        {
-            [JsonPropertyName("name")]
-            public string name { get; set; }
-            [JsonPropertyName("port")]
-            public int port { get; set; }
-        }
+    public class PortInfo
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("port")]
+        public int Port { get; set; }
     }
 }
