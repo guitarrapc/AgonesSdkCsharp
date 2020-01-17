@@ -28,7 +28,7 @@ namespace AgonesSdk.Hosting
             {
                 _logger.LogDebug($"{nameof(AgonesHealthCheckService)} sending Health Ping");
                 await _agonesSdk.Health(stoppingToken);
-                await Task.Delay(_agonesSdk.Settings.HealthInterval, stoppingToken);
+                await Task.Delay(_agonesSdk.Options.HealthInterval, stoppingToken);
             }
 
             _logger.LogDebug($"{nameof(AgonesHealthCheckService)} task is stopping.");

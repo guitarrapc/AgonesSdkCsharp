@@ -13,7 +13,7 @@ namespace AgonesSdk
     public interface IAgonesSdk
     {
         bool HealthEnabled { get; set; }
-        AgonesSdkSettings Settings { get; }
+        AgonesSdkOptions Options { get; }
 
         /// <summary>
         /// Call when the GameServer is ready

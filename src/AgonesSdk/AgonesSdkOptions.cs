@@ -4,9 +4,9 @@ using System.Text.Json;
 namespace AgonesSdk
 {
     /// <summary>
-    /// AgonesSdk Settings
+    /// AgonesSdk Options
     /// </summary>
-    public class AgonesSdkSettings
+    public class AgonesSdkOptions
     {
         /// <summary>
         /// HttpClientName for AgonesSdk
@@ -25,21 +25,21 @@ namespace AgonesSdk
         /// </summary>
         public TimeSpan HealthInterval { get; set; } = TimeSpan.FromSeconds(2);
         /// <summary>
-        /// AgonesSdk Polly Settings
+        /// AgonesSdk Polly Options
         /// </summary>
-        public AgonesSdkHttpPollySettings PollySettings { get; set; } = new AgonesSdkHttpPollySettings();
+        public AgonesSdkHttpPollyOptions PollyOptions { get; set; } = new AgonesSdkHttpPollyOptions();
 
         public string AsJson()
         {
-            var json = JsonSerializer.Serialize<AgonesSdkSettings>(this);
+            var json = JsonSerializer.Serialize<AgonesSdkOptions>(this);
             return json;
         }
     }
 
     /// <summary>
-    /// AgonesSdk Http Polly Settings
+    /// AgonesSdk Http Polly Options
     /// </summary>
-    public class AgonesSdkHttpPollySettings
+    public class AgonesSdkHttpPollyOptions
     {
         /// <summary>
         /// Failed count when to trigger wait and retry.
