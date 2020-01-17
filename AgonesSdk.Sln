@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgonesSdk.Hosting", "src\Ag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleHosting", "samples\SampleHosting\SampleHosting.csproj", "{DE6EF44E-D62E-40D5-80AC-4BD50FB693C1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgonesMockServer", "samples\AgonesMockServer\AgonesMockServer.csproj", "{5B1D4BF3-8399-427A-924C-60E02EDD2C71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +31,17 @@ Global
 		{DE6EF44E-D62E-40D5-80AC-4BD50FB693C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE6EF44E-D62E-40D5-80AC-4BD50FB693C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE6EF44E-D62E-40D5-80AC-4BD50FB693C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B1D4BF3-8399-427A-924C-60E02EDD2C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B1D4BF3-8399-427A-924C-60E02EDD2C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B1D4BF3-8399-427A-924C-60E02EDD2C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B1D4BF3-8399-427A-924C-60E02EDD2C71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DE6EF44E-D62E-40D5-80AC-4BD50FB693C1} = {916F8163-C068-400B-B30C-A218369D82C1}
+		{5B1D4BF3-8399-427A-924C-60E02EDD2C71} = {916F8163-C068-400B-B30C-A218369D82C1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0E861D6-65B9-47EE-BC62-F5A4993D7739}
