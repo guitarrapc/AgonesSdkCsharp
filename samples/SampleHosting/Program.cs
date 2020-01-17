@@ -18,7 +18,7 @@ namespace SampleHosting
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .AddAgones<AgonesSdk>()
+            .UseAgones<AgonesSdk>()
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
 
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
@@ -35,7 +35,7 @@ namespace SampleHosting
                 },
             };
             return Host.CreateDefaultBuilder(args)
-                .AddAgones<AgonesSdk>(settings)
+                .UseAgones<AgonesSdk>(settings)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
 
@@ -58,7 +58,7 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .AddAgones<AgonesSdkCsharp.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
+                .UseAgones<AgonesSdkCsharp.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
     }
