@@ -12,6 +12,10 @@ namespace AgonesSdk
         /// </summary>
         public string HttpClientName { get; set; } = "Agones";
         /// <summary>
+        /// HttpClientName for AgonesSdk
+        /// </summary>
+        public string HttpClientUserAgent { get; set; } = "AgonesSdk.Net";
+        /// <summary>
         /// Determine cache request
         /// </summary>
         public bool CacheRequest { get; set; } = true;

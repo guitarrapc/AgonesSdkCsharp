@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -23,19 +24,21 @@ namespace AgonesSdk
         // ref: sdk server https://github.com/googleforgames/agones/blob/master/cmd/sdk-server/main.go
         // grpc: localhost on port 9357
         // http: localhost on port 9358
-        readonly Uri SideCarAddress = new Uri("http://127.0.0.1:9358");
+        readonly Uri _sideCarAddress = new Uri("http://127.0.0.1:9358");
         readonly IHttpClientFactory _httpClientFactory;
+        readonly MediaTypeHeaderValue _contentType;
 
         public AgonesSdk(AgonesSdkSettings settings, IHttpClientFactory httpClientFactory)
         {
             Settings = settings;
             _httpClientFactory = httpClientFactory;
+            _contentType = new MediaTypeHeaderValue("application/json");
 
             if (Settings.CacheRequest)
             {
                 // cache empty request content
                 var stringContent = new StringContent("{}", encoding, "application/json");
-                stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                stringContent.Headers.ContentType = _contentType;
                 jsonCache.Value.TryAdd("{}", stringContent);
             }
         }
@@ -93,10 +96,10 @@ namespace AgonesSdk
         private async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
         {
             TResponse response = null;
-            if (ct.IsCancellationRequested) throw new OperationCanceledException(ct);
+            if (!ct.IsCancellationRequested) throw new OperationCanceledException(ct);
 
             var httpClient = _httpClientFactory.CreateClient(Settings.HttpClientName);
-            httpClient.BaseAddress = SideCarAddress;
+            httpClient.BaseAddress = _sideCarAddress;
             var requestMessage = new HttpRequestMessage(method, api);
             if (Settings.CacheRequest)
             {
@@ -107,7 +110,7 @@ namespace AgonesSdk
                 else
                 {
                     var stringContent = new StringContent(json, encoding, "application/json");
-                    stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                    stringContent.Headers.ContentType = _contentType;
                     jsonCache.Value.TryAdd(json, stringContent);
                     requestMessage.Content = stringContent;
                 }
@@ -115,7 +118,7 @@ namespace AgonesSdk
             else
             {
                 var stringContent = new StringContent(json, encoding, "application/json");
-                stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                stringContent.Headers.ContentType = _contentType;
                 requestMessage.Content = stringContent;
             }
             var res = await httpClient.SendAsync(requestMessage, ct).ConfigureAwait(false);

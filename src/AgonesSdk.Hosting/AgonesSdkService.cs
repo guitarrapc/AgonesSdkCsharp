@@ -9,7 +9,6 @@ namespace AgonesSdk.Hosting
     public static class AgonesSdkService
     {
         private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
-        private static readonly Lazy<AgonesSdkSettings> defaultSettings = new Lazy<AgonesSdkSettings>(() => new AgonesSdkSettings());
 
         /// <summary>
         /// Add AgonesSdk and run Health Check in the background.
@@ -19,7 +18,7 @@ namespace AgonesSdk.Hosting
         /// <param name="registerHealthCheckService"></param>
         /// <returns></returns>
         public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, bool registerHealthCheckService = true)
-            => hostBuilder.AddAgones(defaultSettings.Value, registerHealthCheckService);
+            => hostBuilder.AddAgones(new AgonesSdkSettings(), registerHealthCheckService);
         /// <summary>
         /// Add AgonesSdk and run Health Check in the background.
         /// </summary>
@@ -37,9 +36,13 @@ namespace AgonesSdk.Hosting
 
             static void ConfigureHttpClientDefault(IServiceCollection services, AgonesSdkSettings settings)
             {
-                services.AddHttpClient(settings.HttpClientName, client => client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")))
-                            .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollySettings.FailedRetryCount, retry => ExponentialBackkoff(retry)))
-                            .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(settings.PollySettings.HandledEventsAllowedBeforeCirtcuitBreaking, settings.PollySettings.CirtcuitBreakingDuration));
+                services.AddHttpClient(settings.HttpClientName, client => 
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("User-Agent", settings.HttpClientUserAgent);
+                })
+                .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollySettings.FailedRetryCount, retry => ExponentialBackkoff(retry)))
+                .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(settings.PollySettings.HandledEventsAllowedBeforeCirtcuitBreaking, settings.PollySettings.CirtcuitBreakingDuration));
             }
         }
         /// <summary>
