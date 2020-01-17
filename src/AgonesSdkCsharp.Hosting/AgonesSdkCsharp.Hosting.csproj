@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AgonesSdk\AgonesSdk.csproj" />
+    <ProjectReference Include="..\AgonesSdkCsharp\AgonesSdkCsharp.csproj" />
   </ItemGroup>
 
 </Project>

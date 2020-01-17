@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
     // REST SDK
     // TODO: prepare gRPC Service

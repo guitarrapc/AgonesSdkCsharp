@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AgonesSdk.Hosting\AgonesSdk.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\AgonesSdkCsharp.Hosting\AgonesSdkCsharp.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\AgonesSdkCsharp\AgonesSdkCsharp.csproj" />
   </ItemGroup>
 
 </Project>

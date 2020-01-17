@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
     /// <summary>
     /// AgonesSdk Options

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using System;
 
-namespace AgonesSdk.Hosting
+namespace AgonesSdkCsharp.Hosting
 {
     public static class AgonesSdkService
     {

@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
     // should implement: ready,allocate,setlabel,setannotation,gameserver,health,shutdown,watch
     // https://agones.dev/site/docs/guides/client-sdks/#rest-api-implementation

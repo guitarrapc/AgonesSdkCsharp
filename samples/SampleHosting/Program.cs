@@ -1,5 +1,5 @@
-﻿using AgonesSdk;
-using AgonesSdk.Hosting;
+﻿using AgonesSdkCsharp;
+using AgonesSdkCsharp.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,16 +18,16 @@ namespace SampleHosting
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .AddAgones<AgonesSdk.AgonesSdk>()
+            .AddAgones<AgonesSdk>()
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
 
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
         {
-            var settings = new AgonesSdk.AgonesSdkOptions
+            var settings = new AgonesSdkOptions
             {
                 HealthInterval = TimeSpan.FromSeconds(1),
                 HttpClientName = "myAgonesClient",
-                PollyOptions = new AgonesSdk.AgonesSdkHttpPollyOptions
+                PollyOptions = new AgonesSdkHttpPollyOptions
                 {
                     FailedRetryCount = 5,
                     CirtcuitBreakingDuration = TimeSpan.FromSeconds(10),
@@ -35,7 +35,7 @@ namespace SampleHosting
                 },
             };
             return Host.CreateDefaultBuilder(args)
-                .AddAgones<AgonesSdk.AgonesSdk>(settings)
+                .AddAgones<AgonesSdk>(settings)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
 
@@ -46,7 +46,7 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpService(string[] args)
         {
-            var settings = new AgonesSdk.AgonesSdkOptions();
+            var settings = new AgonesSdkCsharp.AgonesSdkOptions();
 
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
@@ -58,7 +58,7 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .AddAgones<AgonesSdk.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
+                .AddAgones<AgonesSdkCsharp.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
     }

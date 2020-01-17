@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AgonesSdk.Hosting
+namespace AgonesSdkCsharp.Hosting
 {
     /// <summary>
     /// Background service to execute HealthCheck to the AgonesSdk
