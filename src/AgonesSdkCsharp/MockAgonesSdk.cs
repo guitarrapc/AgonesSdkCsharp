@@ -4,11 +4,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
     public class MockAgonesSdk : IAgonesSdk
     {
         public bool HealthEnabled { get; set; } = true;
+        public AgonesSdkOptions Options => new AgonesSdkOptions();
 
         public Task Allocate(CancellationToken ct = default)
         {

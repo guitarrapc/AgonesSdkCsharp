@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
+    // REST SDK
+    // TODO: prepare gRPC Service
     // ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.2.0/sdks/go/sdk.go
     public class AgonesSdk : IAgonesSdk
     {
@@ -16,24 +18,26 @@ namespace AgonesSdk
         static readonly Lazy<ConcurrentDictionary<string, StringContent>> jsonCache = new Lazy<ConcurrentDictionary<string, StringContent>>(() => new ConcurrentDictionary<string, StringContent>());
 
         public bool HealthEnabled { get; set; } = true;
+        public AgonesSdkOptions Options { get; }
 
         // ref: sdk server https://github.com/googleforgames/agones/blob/master/cmd/sdk-server/main.go
         // grpc: localhost on port 9357
         // http: localhost on port 9358
-        readonly Uri SideCarAddress = new Uri("http://127.0.0.1:9358");
-        readonly AgonesSdkSettings _settings;
+        readonly Uri _sideCarAddress = new Uri("http://127.0.0.1:9358");
         readonly IHttpClientFactory _httpClientFactory;
+        readonly MediaTypeHeaderValue _contentType;
 
-        public AgonesSdk(AgonesSdkSettings settings, IHttpClientFactory httpClientFactory)
+        public AgonesSdk(AgonesSdkOptions options, IHttpClientFactory httpClientFactory)
         {
-            _settings = settings;
+            Options = options;
             _httpClientFactory = httpClientFactory;
+            _contentType = new MediaTypeHeaderValue("application/json");
 
-            if (_settings.CacheRequest)
+            if (Options.CacheRequest)
             {
                 // cache empty request content
                 var stringContent = new StringContent("{}", encoding, "application/json");
-                stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                stringContent.Headers.ContentType = _contentType;
                 jsonCache.Value.TryAdd("{}", stringContent);
             }
         }
@@ -86,16 +90,6 @@ namespace AgonesSdk
             return SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put, ct);
         }
 
-        public async Task HealthCheckAsync(CancellationToken ct = default)
-        {
-            while (HealthEnabled)
-            {
-                if (ct.IsCancellationRequested) throw new OperationCanceledException();
-                await Health(ct).ConfigureAwait(false);
-                await Task.Delay(_settings.HealthInterval, ct);
-            }
-        }
-
         private Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class 
             => SendRequestAsync<TResponse>(api, json, HttpMethod.Post, ct);
         private async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
@@ -103,10 +97,10 @@ namespace AgonesSdk
             TResponse response = null;
             if (ct.IsCancellationRequested) throw new OperationCanceledException(ct);
 
-            var httpClient = _httpClientFactory.CreateClient(_settings.HttpClientName);
-            httpClient.BaseAddress = SideCarAddress;
+            var httpClient = _httpClientFactory.CreateClient(Options.HttpClientName);
+            httpClient.BaseAddress = _sideCarAddress;
             var requestMessage = new HttpRequestMessage(method, api);
-            if (_settings.CacheRequest)
+            if (Options.CacheRequest)
             {
                 if (jsonCache.Value.TryGetValue(json, out var cachedContent))
                 {
@@ -115,7 +109,7 @@ namespace AgonesSdk
                 else
                 {
                     var stringContent = new StringContent(json, encoding, "application/json");
-                    stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                    stringContent.Headers.ContentType = _contentType;
                     jsonCache.Value.TryAdd(json, stringContent);
                     requestMessage.Content = stringContent;
                 }
@@ -123,7 +117,7 @@ namespace AgonesSdk
             else
             {
                 var stringContent = new StringContent(json, encoding, "application/json");
-                stringContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                stringContent.Headers.ContentType = _contentType;
                 requestMessage.Content = stringContent;
             }
             var res = await httpClient.SendAsync(requestMessage, ct).ConfigureAwait(false);

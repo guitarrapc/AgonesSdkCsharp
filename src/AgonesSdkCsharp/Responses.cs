@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AgonesSdk
+namespace AgonesSdkCsharp
 {
     public class NullResponse { }
 
