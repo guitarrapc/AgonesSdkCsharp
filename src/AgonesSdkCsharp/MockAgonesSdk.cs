@@ -63,12 +63,12 @@ namespace AgonesSdkCsharp
                         },
                     },
             };
-            var mockResponse = new GameServerResponse()
+            var response = new GameServerResponse()
             {
                 ObjectMeta = mockResponseObjectMeta,
                 Status = mockResponseStatus,
             };
-            return mockResponse;
+            return response;
         }
         
         public Task Allocate(CancellationToken ct = default)
@@ -82,7 +82,6 @@ namespace AgonesSdkCsharp
         }
         public Task<GameServerResponse> Watch(CancellationToken ct = default)
         {
-            // todo: stream どうするの?
             return Task.FromResult<GameServerResponse>(mockResponse);
         }
 

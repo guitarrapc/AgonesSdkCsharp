@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SampleHosting
 {
@@ -13,7 +15,8 @@ namespace SampleHosting
         {
             //CreateHostBuilder(args).Build().Run();
             //CreateHostBuilderAgonesSettings(args).Build().Run();
-            CreateHostBuilderHttpService(args).Build().Run();
+            //CreateHostBuilderHttpService(args).Build().Run();
+            CreateHostBuilderHttpServiceMock(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -46,8 +49,7 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpService(string[] args)
         {
-            var settings = new AgonesSdkCsharp.AgonesSdkOptions();
-
+            var settings = new AgonesSdkOptions();
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
@@ -58,8 +60,131 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .UseAgones<AgonesSdkCsharp.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
+                .UseAgones<AgonesSdk>(settings, useDefaultHttpClientFactory: false)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+        }
+
+        /// <summary>
+        /// Use Mock AgonesSdk
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IHostBuilder CreateHostBuilderHttpServiceMock(string[] args)
+        {
+            var settings = new AgonesSdkOptions();
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // set HttpClientName pass with settings
+                    services.AddHttpClient(settings.HttpClientName, client =>
+                    {
+                        // you must set at least RequesetHeader. (MUST BE application/json)
+                        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    });
+                })
+                .UseAgones<HogeSdk>(settings, useDefaultHttpClientFactory: false)
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+        }
+
+        public class HogeSdk : IAgonesSdk
+        {
+            public bool HealthEnabled { get; set; }
+            public AgonesSdkOptions Options { get; }
+
+            private readonly GameServerResponse mockResponse;
+
+            public HogeSdk(AgonesSdkOptions options) => (Options, mockResponse) = (options, CreateMockResponse());
+
+            public static GameServerResponse CreateMockResponse()
+            {
+                var mockResponseStatus = new Status
+                {
+                    Address = "127.0.0.1",
+                    Ports = new[] {
+                        new PortInfo
+                        {
+                            Name = "http",
+                            Port = 8080,
+                        }
+                    },
+                    State = "Ready",
+                };
+                var mockResponseObjectMeta = new ObjectMeta
+                {
+                    Name = "mock",
+                    Namespace = "default",
+                    Generation = "gen1",
+                    ResourceVersion = "v1",
+                    Uid = "0",
+                    CreationTimestamp = new DateTime(2020, 1, 1, 0, 0, 0).ToString("yyyyMMdd_HHMMss"),
+                    Annotations = new[]
+                        {
+                        new Annotation
+                        {
+                            Key = "key",
+                            Value = "value",
+                        },
+                    },
+                    Labels = new[]
+                        {
+                        new Label
+                        {
+                            Key = "key",
+                            Value = "value",
+                        },
+                    },
+                };
+                var response = new GameServerResponse()
+                {
+                    ObjectMeta = mockResponseObjectMeta,
+                    Status = mockResponseStatus,
+                };
+                return response;
+            }
+
+            public Task Allocate(CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task<GameServerResponse> GameServer(CancellationToken ct = default)
+            {
+                return Task.FromResult<GameServerResponse>(mockResponse);
+            }
+            public Task<GameServerResponse> Watch(CancellationToken ct = default)
+            {
+                return Task.FromResult<GameServerResponse>(mockResponse);
+            }
+
+            public Task Health(CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task Ready(CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task Reserve(int seconds, CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task Annotation(string key, string value, CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task Label(string key, string value, CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
+
+            public Task Shutdown(CancellationToken ct = default)
+            {
+                return Task.FromResult(true);
+            }
         }
     }
 }

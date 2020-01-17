@@ -12,16 +12,6 @@ namespace AgonesSdkCsharp.Hosting
         /// <summary>
         /// Add Agones Sdk and run Health Check in the background.
         /// </summary>
-        /// <param name="hostBuilder"></param>
-        /// <param name="useDefaultHttpClientFactory">set false when you register your own <see cref="IHttpClientFactory"/></param>
-        /// <param name="registerHealthCheckService">register Background Healthcheck service</param>
-        /// <returns></returns>
-        public static IHostBuilder UseAgones(this IHostBuilder hostBuilder, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true)
-            => hostBuilder.UseAgones<AgonesSdk>(new AgonesSdkOptions(), useDefaultHttpClientFactory, registerHealthCheckService);
-
-        /// <summary>
-        /// Add Agones Sdk and run Health Check in the background.
-        /// </summary>
         /// <typeparam name="T">Type implements <see cref="IAgonesSdk"/></typeparam>
         /// <param name="hostBuilder"></param>
         /// <param name="useDefaultHttpClientFactory">set false when you register your own <see cref="IHttpClientFactory"/></param>
