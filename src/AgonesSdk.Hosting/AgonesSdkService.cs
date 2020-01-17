@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Hosting;
 using Polly;
 using System;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace AgonesSdk.Hosting
@@ -17,8 +19,8 @@ namespace AgonesSdk.Hosting
         /// <param name="hostBuilder"></param>
         /// <param name="registerHealthCheckService"></param>
         /// <returns></returns>
-        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, bool registerHealthCheckService = true)
-            => hostBuilder.AddAgones(new AgonesSdkOptions(), registerHealthCheckService);
+        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true)
+            => hostBuilder.AddAgones(new AgonesSdkOptions(), useDefaultHttpClientFactory, registerHealthCheckService);
         /// <summary>
         /// Add AgonesSdk and run Health Check in the background.
         /// </summary>
@@ -27,45 +29,29 @@ namespace AgonesSdk.Hosting
         /// <param name="settings"></param>
         /// <param name="registerHealthCheckService"></param>
         /// <returns></returns>
-        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkOptions settings, bool registerHealthCheckService = true)
+        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkOptions settings, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true)
         {
             return hostBuilder.ConfigureServices((hostContext, services) =>
             {
-                ConfigureAgonesService(services, settings, ConfigureHttpClientDefault, registerHealthCheckService);
-            });
-
-            static void ConfigureHttpClientDefault(IServiceCollection services, AgonesSdkOptions settings)
-            {
-                services.AddHttpClient(settings.HttpClientName, client => 
+                if (!useDefaultHttpClientFactory)
                 {
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.DefaultRequestHeaders.Add("User-Agent", settings.HttpClientUserAgent);
-                })
-                .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollyOptions.FailedRetryCount, retry => ExponentialBackkoff(retry)))
-                .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(settings.PollyOptions.HandledEventsAllowedBeforeCirtcuitBreaking, settings.PollyOptions.CirtcuitBreakingDuration));
-            }
-        }
-        /// <summary>
-        /// Add AgonesSdk and run Health Check in the background.
-        /// </summary>
-        /// <param name="hostBuilder"></param>
-        /// <param name="settings"></param>
-        /// <param name="configureHttpClient"></param>
-        /// <param name="registerHealthCheckService"></param>
-        /// <returns></returns>
-        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkOptions settings, Action<IServiceCollection, AgonesSdkOptions> configureHttpClient, bool registerHealthCheckService = true) => hostBuilder.ConfigureServices((hostContext, services)
-            => hostBuilder.ConfigureServices((hostContext, services) => ConfigureAgonesService(services, settings, configureHttpClient, registerHealthCheckService)));
+                    services.AddHttpClient(settings.HttpClientName, client =>
+                    {
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        client.DefaultRequestHeaders.Add("User-Agent", settings.HttpClientUserAgent);
+                    })
+                    .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollyOptions.FailedRetryCount, retry => ExponentialBackkoff(retry)))
+                    .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(settings.PollyOptions.HandledEventsAllowedBeforeCirtcuitBreaking, settings.PollyOptions.CirtcuitBreakingDuration));
+                }
 
-        private static void ConfigureAgonesService(IServiceCollection services, AgonesSdkOptions settings, Action<IServiceCollection, AgonesSdkOptions> configureHttpClient, bool registerHostedService)
-        {
-            configureHttpClient.Invoke(services, settings);
-            services.AddSingleton<AgonesSdkOptions>(settings);
-            services.AddSingleton<IAgonesSdk, AgonesSdk>();
+                services.AddSingleton<AgonesSdkOptions>(settings);
+                services.AddSingleton<IAgonesSdk, AgonesSdk>();
 
-            if (registerHostedService)
-            {
-                services.AddHostedService<AgonesHealthCheckService>();
-            }
+                if (registerHealthCheckService)
+                {
+                    services.AddHostedService<AgonesHealthCheckService>();
+                }
+            });
         }
 
         /// <summary>
