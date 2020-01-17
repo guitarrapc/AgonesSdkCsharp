@@ -34,8 +34,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: dotnet build -c Debug
-      - run: dotnet test -c Debug < /dev/null
+      - run: dotnet build -c Debug ./src/<< parameters.project >>
+      - run: dotnet test -c Debug ./tests/<< parameters.project >>.Tests < /dev/null
       # - run: dotnet tool install -g dotnet-reportgenerator-globaltool
       # - run: dotnet test -c Debug --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Include=[<< parameters.project >>.*]*); echo $x;
       # - run: curl -s https://codecov.io/bash > codecov
