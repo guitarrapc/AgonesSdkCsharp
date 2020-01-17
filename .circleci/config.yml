@@ -55,8 +55,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: dotnet build -c Debug ./src/<< parameters.project >>
-      - run: dotnet test -c Debug ./tests/<< parameters.project >>.Tests < /dev/null
+      - run: dotnet build ./src/<< parameters.project >> -c Debug
+      - run: dotnet test ./tests/<< parameters.project >>.Tests -c Debug < /dev/null
       # - run: dotnet tool install -g dotnet-reportgenerator-globaltool
       # - run: dotnet test -c Debug --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Include=[<< parameters.project >>.*]*); echo $x;
       # - run: curl -s https://codecov.io/bash > codecov
@@ -72,10 +72,10 @@ jobs:
       - run:
           name: deploy when exists tag
           command: |
-            dotnet build -c Release -p:Version=${CIRCLE_TAG}
-            dotnet test -c Debug < /dev/null
-            dotnet pack c Release --no-build -p:Version=${CIRCLE_TAG}
-            dotnet nuget push ./bin/Release/<< parameters.project >>.${CIRCLE_TAG}.nupkg -s https://www.nuget.org/api/v2/package -k ${NUGET_KEY} --skip-duplicate
+            dotnet build ./src/<< parameters.project >> -c Release -p:Version=${CIRCLE_TAG}
+            dotnet test ./tests/<< parameters.project >>.Tests -c Release < /dev/null
+            dotnet pack ./src/<< parameters.project >> -c Release --no-build -p:Version=${CIRCLE_TAG}
+            #dotnet nuget push ./bin/Release/<< parameters.project >>.${CIRCLE_TAG}.nupkg -s https://www.nuget.org/api/v2/package -k ${NUGET_KEY} --skip-duplicate
           working_directory: ./src/<< parameters.project >>
       - store_artifacts:
           path: ./src/<< parameters.project >>/bin/Release
