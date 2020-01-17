@@ -55,7 +55,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: dotnet build ./src/<< parameters.project >> -c Debug -p:Version=${CIRCLE_TAG}
+      - run: dotnet build ./src/<< parameters.project >> -c Debug
       - run: dotnet test ./tests/<< parameters.project >>.Tests -c Debug < /dev/null
       # - run: dotnet tool install -g dotnet-reportgenerator-globaltool
       # - run: dotnet test -c Debug --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Include=[<< parameters.project >>.*]*); echo $x;
