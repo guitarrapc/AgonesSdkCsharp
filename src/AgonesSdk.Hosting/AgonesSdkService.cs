@@ -19,8 +19,8 @@ namespace AgonesSdk.Hosting
         /// <param name="hostBuilder"></param>
         /// <param name="registerHealthCheckService"></param>
         /// <returns></returns>
-        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true)
-            => hostBuilder.AddAgones(new AgonesSdkOptions(), useDefaultHttpClientFactory, registerHealthCheckService);
+        public static IHostBuilder AddAgones<T>(this IHostBuilder hostBuilder, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true) where T : class, IAgonesSdk
+            => hostBuilder.AddAgones<T>(new AgonesSdkOptions(), useDefaultHttpClientFactory, registerHealthCheckService);
         /// <summary>
         /// Add AgonesSdk and run Health Check in the background.
         /// </summary>
@@ -29,7 +29,7 @@ namespace AgonesSdk.Hosting
         /// <param name="settings"></param>
         /// <param name="registerHealthCheckService"></param>
         /// <returns></returns>
-        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkOptions settings, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true)
+        public static IHostBuilder AddAgones<T>(this IHostBuilder hostBuilder, AgonesSdkOptions settings, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true) where T: class, IAgonesSdk
         {
             return hostBuilder.ConfigureServices((hostContext, services) =>
             {
@@ -45,7 +45,7 @@ namespace AgonesSdk.Hosting
                 }
 
                 services.AddSingleton<AgonesSdkOptions>(settings);
-                services.AddSingleton<IAgonesSdk, AgonesSdk>();
+                services.AddSingleton<IAgonesSdk, T>();
 
                 if (registerHealthCheckService)
                 {

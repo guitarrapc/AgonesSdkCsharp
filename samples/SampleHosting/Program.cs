@@ -1,4 +1,5 @@
-﻿using AgonesSdk.Hosting;
+﻿using AgonesSdk;
+using AgonesSdk.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ namespace SampleHosting
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .AddAgones()
+            .AddAgones<AgonesSdk.AgonesSdk>()
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
 
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
@@ -34,7 +35,7 @@ namespace SampleHosting
                 },
             };
             return Host.CreateDefaultBuilder(args)
-                .AddAgones(settings)
+                .AddAgones<AgonesSdk.AgonesSdk>(settings)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
 
@@ -57,7 +58,7 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .AddAgones(settings, useDefaultHttpClientFactory: false)
+                .AddAgones<AgonesSdk.AgonesSdk>(settings, useDefaultHttpClientFactory: false)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
         }
     }
