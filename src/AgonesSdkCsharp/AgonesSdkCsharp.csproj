@@ -5,11 +5,11 @@
 
     <Version>1.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
-    <PackageId>AgonesPod</PackageId>
+    <PackageId>AgonesSdkCsharp</PackageId>
     <Authors>guitarrapc</Authors>
-    <Description>In Pod Kubernetes client to access Agones API from .NET</Description>
-    <PackageProjectUrl>https://github.com/guitarrapc/AgonesPod</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/guitarrapc/AgonesPod</RepositoryUrl>
+    <Description>AgonesSdk to call Agones API from .NET</Description>
+    <PackageProjectUrl>https://github.com/guitarrapc/AgonesSdkCsharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/guitarrapc/AgonesSdkCsharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>agones,kubernetes</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
