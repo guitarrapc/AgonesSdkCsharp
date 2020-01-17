@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Polly;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 
 namespace AgonesSdk.Hosting
 {
@@ -14,44 +11,65 @@ namespace AgonesSdk.Hosting
         private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
         private static readonly Lazy<AgonesSdkSettings> defaultSettings = new Lazy<AgonesSdkSettings>(() => new AgonesSdkSettings());
 
-        public static IHostBuilder AddAgonesSdk(this IHostBuilder hostBuilder, bool registerHostedService = true)
+        /// <summary>
+        /// Add AgonesSdk and run Health Check in the background.
+        /// </summary>
+        /// <remarks>You can retrieve IAgonesSdk and AgonesSdkSettings through DI</remarks>
+        /// <param name="hostBuilder"></param>
+        /// <param name="registerHealthCheckService"></param>
+        /// <returns></returns>
+        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, bool registerHealthCheckService = true)
+            => hostBuilder.AddAgones(defaultSettings.Value, registerHealthCheckService);
+        /// <summary>
+        /// Add AgonesSdk and run Health Check in the background.
+        /// </summary>
+        /// <remarks>You can retrieve IAgonesSdk and AgonesSdkSettings through DI</remarks>
+        /// <param name="hostBuilder"></param>
+        /// <param name="settings"></param>
+        /// <param name="registerHealthCheckService"></param>
+        /// <returns></returns>
+        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkSettings settings, bool registerHealthCheckService = true)
         {
-            return hostBuilder.AddAgonesSdk(defaultSettings.Value, registerHostedService);
-        }
-        public static IHostBuilder AddAgonesSdk(this IHostBuilder hostBuilder, AgonesSdkSettings settings, bool registerHostedService = true)
-        {
-            static void configureDefaultHttpClient(IServiceCollection services, AgonesSdkSettings settings)
+            return hostBuilder.ConfigureServices((hostContext, services) =>
+            {
+                ConfigureAgonesService(services, settings, ConfigureHttpClientDefault, registerHealthCheckService);
+            });
+
+            static void ConfigureHttpClientDefault(IServiceCollection services, AgonesSdkSettings settings)
             {
                 services.AddHttpClient(settings.HttpClientName, client => client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")))
-                            .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(3, retry => ExponentialBackkoff(retry)))
-                            .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+                            .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollySettings.FailedRetryCount, retry => ExponentialBackkoff(retry)))
+                            .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(settings.PollySettings.HandledEventsAllowedBeforeCirtcuitBreaking, settings.PollySettings.CirtcuitBreakingDuration));
             }
-
-            return hostBuilder.ConfigureServices((hostContext, services) =>
-            {
-                ConfigureAgonesService(services, settings, configureDefaultHttpClient, registerHostedService);
-            });
         }
-        public static IHostBuilder AddAgonesSdk(this IHostBuilder hostBuilder, AgonesSdkSettings settings, Action<IServiceCollection, AgonesSdkSettings> configureHttpClient, bool registerHostedService = true)
-        {
-            return hostBuilder.ConfigureServices((hostContext, services) =>
-            {
-                ConfigureAgonesService(services, settings, configureHttpClient, registerHostedService);
-            });
-        }
+        /// <summary>
+        /// Add AgonesSdk and run Health Check in the background.
+        /// </summary>
+        /// <param name="hostBuilder"></param>
+        /// <param name="settings"></param>
+        /// <param name="configureHttpClient"></param>
+        /// <param name="registerHealthCheckService"></param>
+        /// <returns></returns>
+        public static IHostBuilder AddAgones(this IHostBuilder hostBuilder, AgonesSdkSettings settings, Action<IServiceCollection, AgonesSdkSettings> configureHttpClient, bool registerHealthCheckService = true) => hostBuilder.ConfigureServices((hostContext, services)
+            => hostBuilder.ConfigureServices((hostContext, services) => ConfigureAgonesService(services, settings, configureHttpClient, registerHealthCheckService)));
 
         private static void ConfigureAgonesService(IServiceCollection services, AgonesSdkSettings settings, Action<IServiceCollection, AgonesSdkSettings> configureHttpClient, bool registerHostedService)
         {
             configureHttpClient.Invoke(services, settings);
-
             services.AddSingleton<AgonesSdkSettings>(settings);
             services.AddSingleton<IAgonesSdk, AgonesSdk>();
+
             if (registerHostedService)
             {
-                services.AddHostedService<AgonesHostedService>();
+                services.AddHostedService<AgonesHealthCheckService>();
             }
         }
 
+        /// <summary>
+        /// Provide Exponential Backoff
+        /// </summary>
+        /// <param name="retryAttempt"></param>
+        /// <returns></returns>
         public static TimeSpan ExponentialBackkoff(int retryAttempt)
             => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)) + TimeSpan.FromMilliseconds(jitterer.Value.Next(0, 100));
     }

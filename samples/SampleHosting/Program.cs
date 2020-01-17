@@ -14,7 +14,7 @@ namespace ConsoleApp1
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .AddAgonesSdk()
+            .AddAgones()
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug));
     }
 }
