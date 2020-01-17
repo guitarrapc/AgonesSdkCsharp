@@ -76,7 +76,6 @@ jobs:
             dotnet test ./tests/<< parameters.project >>.Tests -c Release < /dev/null
             dotnet pack ./src/<< parameters.project >> -c Release --no-build -p:Version=${CIRCLE_TAG}
             #dotnet nuget push ./bin/Release/<< parameters.project >>.${CIRCLE_TAG}.nupkg -s https://www.nuget.org/api/v2/package -k ${NUGET_KEY} --skip-duplicate
-          working_directory: ./src/<< parameters.project >>
       - store_artifacts:
           path: ./src/<< parameters.project >>/bin/Release
           destination: ./<< parameters.project >>/
