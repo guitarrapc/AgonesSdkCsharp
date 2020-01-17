@@ -10,13 +10,8 @@ executors:
 workflows:
   build-and-push:
     jobs:
-      - build-test-AgonesSdkCsharp:
+      - build-test:
           project: AgonesSdkCsharp
-          filters:
-            tags:
-              only: /.*/
-      - build-test-AgonesSdkCsharp.Hosting:
-          project: AgonesSdkCsharp.Hosting
           filters:
             tags:
               only: /.*/
