@@ -2,9 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using Polly;
 using System;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace AgonesSdk.Hosting
 {
@@ -13,21 +10,23 @@ namespace AgonesSdk.Hosting
         private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
 
         /// <summary>
-        /// Add AgonesSdk and run Health Check in the background.
+        /// Add Agones Sdk and run Health Check in the background.
         /// </summary>
-        /// <remarks>You can retrieve IAgonesSdk and AgonesSdkSettings through DI</remarks>
+        /// <typeparam name="T">Type implements <see cref="IAgonesSdk"/></typeparam>
         /// <param name="hostBuilder"></param>
-        /// <param name="registerHealthCheckService"></param>
+        /// <param name="useDefaultHttpClientFactory">set false when you register your own <see cref="IHttpClientFactory"/></param>
+        /// <param name="registerHealthCheckService">register Background Healthcheck service</param>
         /// <returns></returns>
         public static IHostBuilder AddAgones<T>(this IHostBuilder hostBuilder, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true) where T : class, IAgonesSdk
             => hostBuilder.AddAgones<T>(new AgonesSdkOptions(), useDefaultHttpClientFactory, registerHealthCheckService);
         /// <summary>
-        /// Add AgonesSdk and run Health Check in the background.
+        /// Add Agones Sdk and run Health Check in the background.
         /// </summary>
-        /// <remarks>You can retrieve IAgonesSdk and AgonesSdkSettings through DI</remarks>
+        /// <typeparam name="T">Type implements <see cref="IAgonesSdk"/></typeparam>
         /// <param name="hostBuilder"></param>
         /// <param name="settings"></param>
-        /// <param name="registerHealthCheckService"></param>
+        /// <param name="useDefaultHttpClientFactory">set false when you register your own <see cref="IHttpClientFactory"/></param>
+        /// <param name="registerHealthCheckService">register Background Healthcheck service</param>
         /// <returns></returns>
         public static IHostBuilder AddAgones<T>(this IHostBuilder hostBuilder, AgonesSdkOptions settings, bool useDefaultHttpClientFactory = true, bool registerHealthCheckService = true) where T: class, IAgonesSdk
         {
@@ -37,7 +36,7 @@ namespace AgonesSdk.Hosting
                 {
                     services.AddHttpClient(settings.HttpClientName, client =>
                     {
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                         client.DefaultRequestHeaders.Add("User-Agent", settings.HttpClientUserAgent);
                     })
                     .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(settings.PollyOptions.FailedRetryCount, retry => ExponentialBackkoff(retry)))
