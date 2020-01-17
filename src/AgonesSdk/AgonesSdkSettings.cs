@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 
 namespace AgonesSdk
 {
@@ -27,6 +28,12 @@ namespace AgonesSdk
         /// AgonesSdk Polly Settings
         /// </summary>
         public AgonesSdkHttpPollySettings PollySettings { get; set; } = new AgonesSdkHttpPollySettings();
+
+        public string AsJson()
+        {
+            var json = JsonSerializer.Serialize<AgonesSdkSettings>(this);
+            return json;
+        }
     }
 
     /// <summary>
