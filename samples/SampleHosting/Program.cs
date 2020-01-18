@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,29 @@ namespace SampleHosting
             //CreateHostBuilderAgonesSettings(args).Build().Run();
             //CreateHostBuilderHttpService(args).Build().Run();
             //CreateHostBuilderHttpServiceMock(args).Build().Run();
+
+            //Ready().GetAwaiter().GetResult();
+        }
+
+        public static async Task Ready()
+        {
+            var agones = new AgonesSdk(new AgonesSdkOptions(), new DummyHttpClientFactory());
+            await agones.Ready();
+        }
+
+        public class DummyHttpClientFactory : IHttpClientFactory
+        {
+            private HttpClient _client;
+            public DummyHttpClientFactory()
+            {
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                _client = client;
+            }
+            public HttpClient CreateClient(string name)
+            {
+                return _client;
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
