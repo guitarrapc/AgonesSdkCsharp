@@ -13,8 +13,8 @@ namespace SampleHosting
     {
         static void Main(string[] args)
         {
-            //CreateHostBuilder(args).Build().Run();
-            CreateHostBuilderAgonesSettings(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
+            //CreateHostBuilderAgonesSettings(args).Build().Run();
             //CreateHostBuilderHttpService(args).Build().Run();
             //CreateHostBuilderHttpServiceMock(args).Build().Run();
         }
