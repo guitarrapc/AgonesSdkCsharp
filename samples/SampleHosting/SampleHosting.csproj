@@ -6,14 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AgonesSdkCsharp.Hosting" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\AgonesSdkCsharp.Hosting\AgonesSdkCsharp.Hosting.csproj" />
-    <ProjectReference Include="..\..\src\AgonesSdkCsharp\AgonesSdkCsharp.csproj" />
   </ItemGroup>
 
 </Project>

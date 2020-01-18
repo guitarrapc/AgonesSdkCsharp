@@ -14,9 +14,9 @@ namespace SampleHosting
         static void Main(string[] args)
         {
             //CreateHostBuilder(args).Build().Run();
-            //CreateHostBuilderAgonesSettings(args).Build().Run();
+            CreateHostBuilderAgonesSettings(args).Build().Run();
             //CreateHostBuilderHttpService(args).Build().Run();
-            CreateHostBuilderHttpServiceMock(args).Build().Run();
+            //CreateHostBuilderHttpServiceMock(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

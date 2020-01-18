@@ -32,7 +32,7 @@ namespace AgonesSdkCsharp.Hosting
         {
             return hostBuilder.ConfigureServices((hostContext, services) =>
             {
-                if (!useDefaultHttpClientFactory)
+                if (useDefaultHttpClientFactory)
                 {
                     services.AddHttpClient(settings.HttpClientName, client =>
                     {
