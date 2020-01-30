@@ -19,6 +19,8 @@ namespace AgonesSdkCsharp
 
         public bool HealthEnabled { get; set; } = true;
         public AgonesSdkOptions Options { get; }
+        private bool? _isRunningOnKubernetes;
+        public bool IsRunningOnKubernetes => _isRunningOnKubernetes ?? (bool)(_isRunningOnKubernetes = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")));
 
         // ref: sdk server https://github.com/googleforgames/agones/blob/master/cmd/sdk-server/main.go
         // grpc: localhost on port 9357
