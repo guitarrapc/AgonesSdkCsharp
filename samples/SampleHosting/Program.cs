@@ -45,8 +45,13 @@ namespace SampleHosting
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .UseAgones<AgonesSdk>()
-            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
+            .UseAgones<AgonesSdk>(); // HealtchCheckService Log
+
+        public static IHostBuilder CreateHostBuilderCircuitDelegate(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
+            .UseAgones<AgonesSdk>(); // HealtchCheckService Log
 
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
         {
@@ -62,8 +67,8 @@ namespace SampleHosting
                 },
             };
             return Host.CreateDefaultBuilder(args)
-                .UseAgones<AgonesSdk>(settings)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(settings);
         }
 
         /// <summary>
@@ -84,8 +89,8 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .UseAgones<AgonesSdk>(settings, useDefaultHttpClientFactory: false)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(settings, useDefaultHttpClientFactory: false);
         }
 
         /// <summary>
@@ -106,8 +111,8 @@ namespace SampleHosting
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .UseAgones<HogeSdk>(settings, useDefaultHttpClientFactory: false)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<HogeSdk>(settings, useDefaultHttpClientFactory: false);
         }
 
         public class HogeSdk : IAgonesSdk
