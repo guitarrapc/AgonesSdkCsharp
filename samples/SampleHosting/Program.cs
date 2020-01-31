@@ -30,7 +30,7 @@ namespace SampleHosting
 
         public class DummyHttpClientFactory : IHttpClientFactory
         {
-            private HttpClient _client;
+            private readonly HttpClient _client;
             public DummyHttpClientFactory()
             {
                 var client = new HttpClient();

@@ -8,8 +8,10 @@ namespace AgonesSdkCsharp
 {
     public class MockAgonesSdk : IAgonesSdk
     {
+        public bool IsRunningOnKubernetes => true;
         public bool HealthEnabled { get; set; } = true;
         public AgonesSdkOptions Options { get; } = new AgonesSdkOptions();
+
         private readonly GameServerResponse mockResponse;
 
         public MockAgonesSdk() { }
