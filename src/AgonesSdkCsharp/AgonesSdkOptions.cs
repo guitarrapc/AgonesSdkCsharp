@@ -8,10 +8,14 @@ namespace AgonesSdkCsharp
     /// </summary>
     public class AgonesSdkOptions
     {
+        public const string DefaultHttpClientName = "Agones";
+
+        public bool UseDefaultHttpClientFactory { get; set; } = true;
+        public bool RegisterHealthCheckService { get; set; } = true;
         /// <summary>
         /// HttpClientName for AgonesSdk
         /// </summary>
-        public string HttpClientName { get; set; } = "Agones";
+        public string HttpClientName { get; set; } = DefaultHttpClientName;
         /// <summary>
         /// HttpClientName for AgonesSdk
         /// </summary>

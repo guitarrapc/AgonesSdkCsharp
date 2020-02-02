@@ -43,32 +43,46 @@ namespace SampleHosting
             }
         }
 
+        /// <summary>
+        /// Simple
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
             .UseAgones<AgonesSdk>(); // HealtchCheckService Log
 
+        /// <summary>
+        /// Set Action to Polly events, retry, circuit break.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IHostBuilder CreateHostBuilderCircuitDelegate(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
             .UseAgones<AgonesSdk>(); // HealtchCheckService Log
 
+        /// <summary>
+        /// Pass AgonesSdkOptions
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
         {
-            var settings = new AgonesSdkOptions
-            {
-                HealthInterval = TimeSpan.FromSeconds(1),
-                HttpClientName = "myAgonesClient",
-                PollyOptions = new AgonesSdkHttpPollyOptions
-                {
-                    FailedRetryCount = 5,
-                    CirtcuitBreakingDuration = TimeSpan.FromSeconds(10),
-                    HandledEventsAllowedBeforeCirtcuitBreaking = 2,
-                },
-            };
             return Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<AgonesSdk>(settings);
+                .UseAgones<AgonesSdk>(op =>
+                {
+                    op.HealthInterval = TimeSpan.FromSeconds(1);
+                    op.HttpClientName = "myAgonesClient";
+                    op.PollyOptions = new AgonesSdkHttpPollyOptions
+                    {
+                        FailedRetryCount = 5,
+                        CirtcuitBreakingDuration = TimeSpan.FromSeconds(10),
+                        HandledEventsAllowedBeforeCirtcuitBreaking = 2,
+                    };
+                });
         }
 
         /// <summary>
@@ -78,19 +92,18 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpService(string[] args)
         {
-            var settings = new AgonesSdkOptions();
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
                     // set HttpClientName pass with settings
-                    services.AddHttpClient(settings.HttpClientName, client =>
+                    services.AddHttpClient(AgonesSdkOptions.DefaultHttpClientName, client =>
                     {
                         // you must set at least RequesetHeader. (MUST BE application/json)
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<AgonesSdk>(settings, useDefaultHttpClientFactory: false);
+                .UseAgones<AgonesSdk>(options => options.UseDefaultHttpClientFactory = false);
         }
 
         /// <summary>
@@ -100,19 +113,18 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpServiceMock(string[] args)
         {
-            var settings = new AgonesSdkOptions();
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
                     // set HttpClientName pass with settings
-                    services.AddHttpClient(settings.HttpClientName, client =>
+                    services.AddHttpClient(AgonesSdkOptions.DefaultHttpClientName, client =>
                     {
                         // you must set at least RequesetHeader. (MUST BE application/json)
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<HogeSdk>(settings, useDefaultHttpClientFactory: false);
+                .UseAgones<HogeSdk>(options => options.UseDefaultHttpClientFactory = false);
         }
 
         public class HogeSdk : IAgonesSdk
