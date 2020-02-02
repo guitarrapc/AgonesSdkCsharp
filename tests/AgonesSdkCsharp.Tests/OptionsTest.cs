@@ -6,7 +6,7 @@ using Xunit;
 
 namespace AgonesSdkCsharp.Tests
 {
-    public class UnitTest
+    public class OptionsTest
     {
         [Fact]
         public void AssertOptionDefaultValue()
@@ -17,9 +17,6 @@ namespace AgonesSdkCsharp.Tests
             Assert.Equal(TimeSpan.FromSeconds(2), options.HealthInterval);
             Assert.Equal("Agones", options.HttpClientName);
             Assert.Equal("AgonesSdkCsharp", options.HttpClientUserAgent);
-            Assert.Equal(TimeSpan.FromSeconds(30), options.PollyOptions.CirtcuitBreakingDuration);
-            Assert.Equal(3, options.PollyOptions.FailedRetryCount);
-            Assert.Equal(5, options.PollyOptions.HandledEventsAllowedBeforeCirtcuitBreaking);
         }
 
         [Fact]
