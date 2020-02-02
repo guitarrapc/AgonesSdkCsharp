@@ -20,24 +20,42 @@ namespace AgonesSdkCsharp.Hosting
         /// <param name="hostBuilder"></param>
         /// <returns></returns>
         public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder) where T : class, IAgonesSdk
-            => hostBuilder.UseAgones<T>(op => { }, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
-        /// <summary>
-        /// Add Agones Sdk and run Health Check in the background.
-        /// </summary>
-        /// <typeparam name="T">Type implements <see cref="IAgonesSdk"/></typeparam>
-        /// <param name="hostBuilder"></param>
-        /// <param name="settings"></param>
-        /// <param name="useDefaultHttpClientFactory">set false when you register your own <see cref="IHttpClientFactory"/></param>
-        /// <param name="registerHealthCheckService">register Background Healthcheck service</param>
-        /// <returns></returns>
-        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder, Action<AgonesSdkOptions> options) where T: class, IAgonesSdk
-            => hostBuilder.UseAgones<T>(options, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
+            => hostBuilder.UseAgones<T>(configureSdk => { }, configureService => { }, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
         /// <summary>
         /// Add Agones Sdk and run Health Check in the background.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="hostBuilder"></param>
-        /// <param name="configureOptions"></param>
+        /// <param name="configureSdk"></param>
+        /// <param name="configureHosting"></param>
+        /// <returns></returns>
+        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder, Action<AgonesSdkOptions> configureSdk) where T : class, IAgonesSdk
+            => hostBuilder.UseAgones<T>(configureSdk, hosting => { }, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
+        /// <summary>
+        /// Add Agones Sdk and run Health Check in the background.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hostBuilder"></param>
+        /// <param name="configureHosting"></param>
+        /// <returns></returns>
+        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder, Action<AgonesSdkHostingOptions> configureHosting) where T : class, IAgonesSdk
+            => hostBuilder.UseAgones<T>(sdk => { }, configureHosting, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
+        /// <summary>
+        /// Add Agones Sdk and run Health Check in the background.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hostBuilder"></param>
+        /// <param name="configureSdk"></param>
+        /// <param name="configureHosting"></param>
+        /// <returns></returns>
+        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder, Action<AgonesSdkOptions> configureSdk, Action<AgonesSdkHostingOptions> configureHosting) where T: class, IAgonesSdk
+            => hostBuilder.UseAgones<T>(configureSdk, configureHosting, OnRetryDefault, OnBreakDefault, OnResetDefault, OnHalfOpenDefault);
+        /// <summary>
+        /// Add Agones Sdk and run Health Check in the background.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hostBuilder"></param>
+        /// <param name="configureSdk"></param>
         /// <param name="onRetry"></param>
         /// <param name="onBreak"></param>
         /// <param name="onReset"></param>
@@ -45,7 +63,8 @@ namespace AgonesSdkCsharp.Hosting
         /// <returns></returns>
         public static IHostBuilder UseAgones<T>(
             this IHostBuilder hostBuilder, 
-            Action<AgonesSdkOptions> configureOptions,
+            Action<AgonesSdkOptions> configureSdk,
+            Action<AgonesSdkHostingOptions> configureHosting,
             Func<DelegateResult<HttpResponseMessage>, TimeSpan, Context, ILogger<AgonesHealthCheckService>, Task> onRetry,
             Action<DelegateResult<HttpResponseMessage>, CircuitState, TimeSpan, Context, ILogger<AgonesHealthCheckService>> onBreak,
             Action<Context, ILogger<AgonesHealthCheckService>> onReset,
@@ -54,35 +73,38 @@ namespace AgonesSdkCsharp.Hosting
         {
             return hostBuilder.ConfigureServices((hostContext, services) =>
             {
-                var options = new AgonesSdkOptions();
-                configureOptions.Invoke(options);
+                var sdkOptions = new AgonesSdkOptions();
+                configureSdk.Invoke(sdkOptions);
 
-                if (options.UseDefaultHttpClientFactory)
+                var serviceOptions = new AgonesSdkHostingOptions();
+                configureHosting.Invoke(serviceOptions);
+
+                if (serviceOptions.UseDefaultHttpClientFactory)
                 {
                     var sp = services.BuildServiceProvider();
                     var loggerFactory = sp.GetService<ILoggerFactory>();
                     var logger = loggerFactory.CreateLogger<AgonesHealthCheckService>();
 
-                    var httpClientBuilder = services.AddHttpClient(options.HttpClientName, client =>
+                    var httpClientBuilder = services.AddHttpClient(sdkOptions.HttpClientName, client =>
                     {
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                        client.DefaultRequestHeaders.Add("User-Agent", options.HttpClientUserAgent);
+                        client.DefaultRequestHeaders.Add("User-Agent", sdkOptions.HttpClientUserAgent);
                     })
-                    .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(options.PollyOptions.FailedRetryCount, 
+                    .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(serviceOptions.FailedRetryCount, 
                         sleepDurationProvider: retry => ExponentialBackkoff(retry), 
                         onRetry: (response, duration, context) => onRetry(response, duration, context, logger)))
                     .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(
-                        options.PollyOptions.HandledEventsAllowedBeforeCirtcuitBreaking,
-                        options.PollyOptions.CirtcuitBreakingDuration,
+                        serviceOptions.HandledEventsAllowedBeforeCirtcuitBreaking,
+                        serviceOptions.CirtcuitBreakingDuration,
                         onBreak: (response, state, duration, context) => onBreak(response, state, duration, context, logger),
                         onReset: (Context context) => onReset(context, logger),
                         onHalfOpen: () => onHalfOpen(logger))
                     );
                 }
 
-                services.AddSingleton<AgonesSdkOptions>(options);
+                services.AddSingleton<AgonesSdkOptions>(sdkOptions);
                 services.AddSingleton<IAgonesSdk, T>();
-                if (options.RegisterHealthCheckService)
+                if (serviceOptions.RegisterHealthCheckService)
                 {
                     services.AddHostedService<AgonesHealthCheckService>();
                 }

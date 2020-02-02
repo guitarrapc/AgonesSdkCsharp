@@ -9,9 +9,6 @@ namespace AgonesSdkCsharp
     public class AgonesSdkOptions
     {
         public const string DefaultHttpClientName = "Agones";
-
-        public bool UseDefaultHttpClientFactory { get; set; } = true;
-        public bool RegisterHealthCheckService { get; set; } = true;
         /// <summary>
         /// HttpClientName for AgonesSdk
         /// </summary>
@@ -28,10 +25,6 @@ namespace AgonesSdkCsharp
         /// Health Check Interval
         /// </summary>
         public TimeSpan HealthInterval { get; set; } = TimeSpan.FromSeconds(2);
-        /// <summary>
-        /// AgonesSdk Polly Options
-        /// </summary>
-        public AgonesSdkHttpPollyOptions PollyOptions { get; set; } = new AgonesSdkHttpPollyOptions();
 
         public string AsJson()
         {
@@ -41,10 +34,18 @@ namespace AgonesSdkCsharp
     }
 
     /// <summary>
-    /// AgonesSdk Http Polly Options
+    /// AgonesSdk Hosting Options
     /// </summary>
-    public class AgonesSdkHttpPollyOptions
+    public class AgonesSdkHostingOptions
     {
+        /// <summary>
+        /// Use Hosting Integrated HttpClientFactory. false to use your own HttpClientFactory.
+        /// </summary>
+        public bool UseDefaultHttpClientFactory { get; set; } = true;
+        /// <summary>
+        /// Register Health Check background service. false to unregister background service.
+        /// </summary>
+        public bool RegisterHealthCheckService { get; set; } = true;
         /// <summary>
         /// Failed count when to trigger wait and retry.
         /// </summary>

@@ -72,16 +72,15 @@ namespace SampleHosting
         {
             return Host.CreateDefaultBuilder(args)
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<AgonesSdk>(op =>
+                .UseAgones<AgonesSdk>(configureSdk =>
                 {
-                    op.HealthInterval = TimeSpan.FromSeconds(1);
-                    op.HttpClientName = "myAgonesClient";
-                    op.PollyOptions = new AgonesSdkHttpPollyOptions
-                    {
-                        FailedRetryCount = 5,
-                        CirtcuitBreakingDuration = TimeSpan.FromSeconds(10),
-                        HandledEventsAllowedBeforeCirtcuitBreaking = 2,
-                    };
+                    configureSdk.HealthInterval = TimeSpan.FromSeconds(1);
+                    configureSdk.HttpClientName = "myAgonesClient";
+                }, configureHosting =>
+                {
+                    configureHosting.FailedRetryCount = 5;
+                    configureHosting.CirtcuitBreakingDuration = TimeSpan.FromSeconds(10);
+                    configureHosting.HandledEventsAllowedBeforeCirtcuitBreaking = 2;
                 });
         }
 
@@ -103,7 +102,7 @@ namespace SampleHosting
                     });
                 })
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<AgonesSdk>(options => options.UseDefaultHttpClientFactory = false);
+                .UseAgones<AgonesSdk>(configureHosting => configureHosting.UseDefaultHttpClientFactory = false);
         }
 
         /// <summary>
@@ -124,7 +123,7 @@ namespace SampleHosting
                     });
                 })
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
-                .UseAgones<HogeSdk>(options => options.UseDefaultHttpClientFactory = false);
+                .UseAgones<HogeSdk>(configureSdk => configureSdk.UseDefaultHttpClientFactory = false);
         }
 
         public class HogeSdk : IAgonesSdk
