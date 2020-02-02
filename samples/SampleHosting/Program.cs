@@ -14,12 +14,12 @@ namespace SampleHosting
     {
         static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            //CreateHostBuilder(args).Build().Run();
             //CreateHostBuilderAgonesSettings(args).Build().Run();
             //CreateHostBuilderHttpService(args).Build().Run();
             //CreateHostBuilderHttpServiceMock(args).Build().Run();
-
             //Ready().GetAwaiter().GetResult();
+            CreateHostBuilderHttpServiceCustomHandler(args).Build().Run();
         }
 
         public static async Task Ready()
@@ -43,27 +43,45 @@ namespace SampleHosting
             }
         }
 
+        /// <summary>
+        /// Simple
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .UseAgones<AgonesSdk>()
-            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
+            .UseAgones<AgonesSdk>(); // HealtchCheckService Log
 
+        /// <summary>
+        /// Set Action to Polly events, retry, circuit break.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IHostBuilder CreateHostBuilderCircuitDelegate(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
+            .UseAgones<AgonesSdk>(); // HealtchCheckService Log
+
+        /// <summary>
+        /// Pass AgonesSdkOptions
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static IHostBuilder CreateHostBuilderAgonesSettings(string[] args)
         {
-            var settings = new AgonesSdkOptions
-            {
-                HealthInterval = TimeSpan.FromSeconds(1),
-                HttpClientName = "myAgonesClient",
-                PollyOptions = new AgonesSdkHttpPollyOptions
-                {
-                    FailedRetryCount = 5,
-                    CirtcuitBreakingDuration = TimeSpan.FromSeconds(10),
-                    HandledEventsAllowedBeforeCirtcuitBreaking = 2,
-                },
-            };
             return Host.CreateDefaultBuilder(args)
-                .UseAgones<AgonesSdk>(settings)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(configureSdk =>
+                {
+                    configureSdk.HealthInterval = TimeSpan.FromSeconds(1);
+                    configureSdk.HttpClientName = "myAgonesClient";
+                }, configureHosting =>
+                {
+                    configureHosting.FailedRetryCount = 5;
+                    configureHosting.CirtcuitBreakingDuration = TimeSpan.FromSeconds(10);
+                    configureHosting.HandledEventsAllowedBeforeCirtcuitBreaking = 2;
+                });
         }
 
         /// <summary>
@@ -73,19 +91,18 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpService(string[] args)
         {
-            var settings = new AgonesSdkOptions();
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
                     // set HttpClientName pass with settings
-                    services.AddHttpClient(settings.HttpClientName, client =>
+                    services.AddHttpClient(AgonesSdkOptions.DefaultHttpClientName, client =>
                     {
                         // you must set at least RequesetHeader. (MUST BE application/json)
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .UseAgones<AgonesSdk>(settings, useDefaultHttpClientFactory: false)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(configureHosting => configureHosting.UseDefaultHttpClientFactory = false);
         }
 
         /// <summary>
@@ -95,19 +112,33 @@ namespace SampleHosting
         /// <returns></returns>
         public static IHostBuilder CreateHostBuilderHttpServiceMock(string[] args)
         {
-            var settings = new AgonesSdkOptions();
             return Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
                     // set HttpClientName pass with settings
-                    services.AddHttpClient(settings.HttpClientName, client =>
+                    services.AddHttpClient(AgonesSdkOptions.DefaultHttpClientName, client =>
                     {
                         // you must set at least RequesetHeader. (MUST BE application/json)
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                     });
                 })
-                .UseAgones<HogeSdk>(settings, useDefaultHttpClientFactory: false)
-                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)); // HealtchCheckService Log
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<HogeSdk>(configureSdk => configureSdk.UseDefaultHttpClientFactory = false);
+        }
+
+        /// <summary>
+        /// Use custom Polly handler
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IHostBuilder CreateHostBuilderHttpServiceCustomHandler(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(configureService =>
+                {
+                    configureService.OnRetry = (response, duration, context, logger) => logger.LogInformation("OnRetry!!!!!");
+                });
         }
 
         public class HogeSdk : IAgonesSdk
