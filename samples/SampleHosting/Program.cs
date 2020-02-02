@@ -14,12 +14,12 @@ namespace SampleHosting
     {
         static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            //CreateHostBuilder(args).Build().Run();
             //CreateHostBuilderAgonesSettings(args).Build().Run();
             //CreateHostBuilderHttpService(args).Build().Run();
             //CreateHostBuilderHttpServiceMock(args).Build().Run();
-
             //Ready().GetAwaiter().GetResult();
+            CreateHostBuilderHttpServiceCustomHandler(args).Build().Run();
         }
 
         public static async Task Ready()
@@ -124,6 +124,21 @@ namespace SampleHosting
                 })
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
                 .UseAgones<HogeSdk>(configureSdk => configureSdk.UseDefaultHttpClientFactory = false);
+        }
+
+        /// <summary>
+        /// Use custom Polly handler
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IHostBuilder CreateHostBuilderHttpServiceCustomHandler(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
+                .UseAgones<AgonesSdk>(configureService =>
+                {
+                    configureService.OnRetry = (response, duration, context, logger) => logger.LogInformation("OnRetry!!!!!");
+                });
         }
 
         public class HogeSdk : IAgonesSdk

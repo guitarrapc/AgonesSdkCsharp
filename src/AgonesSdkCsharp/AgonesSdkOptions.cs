@@ -32,31 +32,4 @@ namespace AgonesSdkCsharp
             return json;
         }
     }
-
-    /// <summary>
-    /// AgonesSdk Hosting Options
-    /// </summary>
-    public class AgonesSdkHostingOptions
-    {
-        /// <summary>
-        /// Use Hosting Integrated HttpClientFactory. false to use your own HttpClientFactory.
-        /// </summary>
-        public bool UseDefaultHttpClientFactory { get; set; } = true;
-        /// <summary>
-        /// Register Health Check background service. false to unregister background service.
-        /// </summary>
-        public bool RegisterHealthCheckService { get; set; } = true;
-        /// <summary>
-        /// Failed count when to trigger wait and retry.
-        /// </summary>
-        public int FailedRetryCount { get; set; } = 3;
-        /// <summary>
-        /// Allowed failed count before trigger circuit break
-        /// </summary>
-        public int HandledEventsAllowedBeforeCirtcuitBreaking { get; set; } = 5;
-        /// <summary>
-        /// Circuit break Duration
-        /// </summary>
-        public TimeSpan CirtcuitBreakingDuration { get; set; } = TimeSpan.FromSeconds(30);
-    }
 }
