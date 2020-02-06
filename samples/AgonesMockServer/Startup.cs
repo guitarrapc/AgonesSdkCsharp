@@ -50,9 +50,6 @@ namespace AgonesMockServer
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
             
-            // dummy response
-            app.UseHealthChecks("/health", new HealthCheckOptions { ResponseWriter = responseWriter });
-            app.UseHealthChecks("/ready", new HealthCheckOptions { ResponseWriter = responseWriter });
 
             app.UseRouting();
 
@@ -60,6 +57,10 @@ namespace AgonesMockServer
 
             app.UseEndpoints(endpoints =>
             {
+                // dummy response
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions() { ResponseWriter = responseWriter });
+                endpoints.MapHealthChecks("/ready", new HealthCheckOptions() { ResponseWriter = responseWriter });
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

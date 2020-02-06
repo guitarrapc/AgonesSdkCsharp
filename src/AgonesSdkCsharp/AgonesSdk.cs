@@ -44,57 +44,59 @@ namespace AgonesSdkCsharp
             }
         }
 
-        public Task Ready(CancellationToken ct = default)
-        {            
+        public virtual Task Ready(CancellationToken ct = default)
+        {
             return SendRequestAsync<NullResponse>("/ready", "{}", ct);
         }
 
-        public Task Allocate(CancellationToken ct = default)
-        {            
+        public virtual Task Allocate(CancellationToken ct = default)
+        {
             return SendRequestAsync<NullResponse>("/allocate", "{}", ct);
         }
 
-        public Task Shutdown(CancellationToken ct = default)
-        {            
+        public virtual Task Shutdown(CancellationToken ct = default)
+        {
             return SendRequestAsync<NullResponse>("/shutdown", "{}", ct);
         }
 
-        public Task Health(CancellationToken ct = default)
-        {            
+        public virtual Task Health(CancellationToken ct = default)
+        {
             return SendRequestAsync<NullResponse>("/health", "{}", ct);
         }
 
-        public Task<GameServerResponse> GameServer(CancellationToken ct = default)
+        public virtual Task<GameServerResponse> GameServer(CancellationToken ct = default)
         {
             return SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get, ct);
         }
 
-        public Task<GameServerResponse> Watch(CancellationToken ct = default)
-        {            
+        public virtual Task<GameServerResponse> Watch(CancellationToken ct = default)
+        {
             return SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get, ct);
-}
+        }
 
-        public Task Reserve(int seconds, CancellationToken ct = default)
-        {            
+        public virtual Task Reserve(int seconds, CancellationToken ct = default)
+        {
             var json = JsonSerializer.Serialize(new ReserveBody(seconds));
             return SendRequestAsync<NullResponse>("/reserve", json, ct);
         }
 
-        public Task Label(string key, string value, CancellationToken ct = default)
-        {            
+        public virtual Task Label(string key, string value, CancellationToken ct = default)
+        {
             var json = JsonSerializer.Serialize(new KeyValueMessage(key, value));
             return SendRequestAsync<NullResponse>("/metadata/label", json, HttpMethod.Put, ct);
         }
 
-        public Task Annotation(string key, string value, CancellationToken ct = default)
-        {            
+        public virtual Task Annotation(string key, string value, CancellationToken ct = default)
+        {
             var json = JsonSerializer.Serialize(new KeyValueMessage(key, value));
             return SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put, ct);
         }
 
-        private Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class 
+        protected virtual Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class
             => SendRequestAsync<TResponse>(api, json, HttpMethod.Post, ct);
-        private async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
+        protected virtual Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
+            => SendRequestAsync<TResponse>(api, json, HttpMethod.Post, JsonDeserializer<TResponse>, ct);
+        protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, Func<byte[], TResponse> deserializer, CancellationToken ct) where TResponse : class
         {
             TResponse response = null;
             if (ct.IsCancellationRequested) throw new OperationCanceledException(ct);
@@ -123,15 +125,18 @@ namespace AgonesSdkCsharp
                 requestMessage.Content = stringContent;
             }
             var res = await httpClient.SendAsync(requestMessage, ct).ConfigureAwait(false);
-            
+
             // result
             var content = await res.Content.ReadAsByteArrayAsync();
-            if (content != null)
+            if (content != null && content.Length != 0)
             {
-                response = JsonSerializer.Deserialize<TResponse>(content);
+                response = deserializer(content);
             }
             return response;
         }
+
+        protected static TResponse JsonDeserializer<TResponse>(byte[] input) where TResponse : class 
+            => JsonSerializer.Deserialize<TResponse>(input);
 
         public class ReserveBody
         {

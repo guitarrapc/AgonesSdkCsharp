@@ -63,21 +63,19 @@ namespace AgonesSdkCsharp.Hosting
                     var sp = services.BuildServiceProvider();
                     var loggerFactory = sp.GetService<ILoggerFactory>();
                     var logger = loggerFactory.CreateLogger<AgonesHealthCheckService>();
+                    var circuitLogger = loggerFactory.CreateLogger<AgonesCircuitDelegate>();
 
                     var httpClientBuilder = services.AddHttpClient(sdkOptions.HttpClientName, client =>
                     {
                         client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                         client.DefaultRequestHeaders.Add("User-Agent", sdkOptions.HttpClientUserAgent);
                     })
-                    .AddTransientHttpErrorPolicy(x => x.WaitAndRetryAsync(serviceOptions.FailedRetryCount, 
-                        sleepDurationProvider: retry => ExponentialBackkoff(retry), 
-                        onRetry: (response, duration, context) => serviceOptions.OnRetry(response, duration, context, logger)))
                     .AddTransientHttpErrorPolicy(x => x.CircuitBreakerAsync(
                         serviceOptions.HandledEventsAllowedBeforeCirtcuitBreaking,
                         serviceOptions.CirtcuitBreakingDuration,
-                        onBreak: (response, state, duration, context) => serviceOptions.OnBreak(response, state, duration, context, logger),
-                        onReset: (Context context) => serviceOptions.OnReset(context, logger),
-                        onHalfOpen: () => serviceOptions.OnHalfOpen(logger))
+                        onBreak: (response, state, duration, context) => serviceOptions.OnBreak(response, state, duration, context, circuitLogger),
+                        onReset: (Context context) => serviceOptions.OnReset(context, circuitLogger),
+                        onHalfOpen: () => serviceOptions.OnHalfOpen(circuitLogger))
                     );
                 }
 
