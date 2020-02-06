@@ -27,7 +27,7 @@ namespace AgonesSdkCsharp.Hosting
             while(!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogDebug($"{nameof(AgonesHealthCheckService)} sending Health Ping");
-                await _agonesSdk.Health(stoppingToken);
+                _agonesSdk.Health(stoppingToken).FireAndForget(_logger);
                 await Task.Delay(_agonesSdk.Options.HealthInterval, stoppingToken);
             }
 

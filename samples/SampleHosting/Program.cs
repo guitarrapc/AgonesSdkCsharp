@@ -19,7 +19,8 @@ namespace SampleHosting
             //CreateHostBuilderHttpService(args).Build().Run();
             //CreateHostBuilderHttpServiceMock(args).Build().Run();
             //Ready().GetAwaiter().GetResult();
-            CreateHostBuilderHttpServiceCustomHandler(args).Build().Run();
+            //CreateHostBuilderHttpServiceCustomHandler(args).Build().Run();
+            CreateHostBuilderCircuiFailure(args).Build().Run();
         }
 
         public static async Task Ready()
@@ -54,14 +55,19 @@ namespace SampleHosting
             .UseAgones<AgonesSdk>(); // HealtchCheckService Log
 
         /// <summary>
-        /// Set Action to Polly events, retry, circuit break.
+        /// Circuit failure test
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static IHostBuilder CreateHostBuilderCircuitDelegate(string[] args) =>
+        public static IHostBuilder CreateHostBuilderCircuiFailure(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
-            .UseAgones<AgonesSdk>(); // HealtchCheckService Log
+            .UseAgones<CircuitMockAgonesSdk>(configureHosting: hosting => 
+            {
+                // circuit for 10 seconds. requests within this duration will be fail.
+                hosting.CirtcuitBreakingDuration = TimeSpan.FromSeconds(10);
+                hosting.HandledEventsAllowedBeforeCirtcuitBreaking = 2;
+            });
 
         /// <summary>
         /// Pass AgonesSdkOptions
@@ -78,7 +84,6 @@ namespace SampleHosting
                     configureSdk.HttpClientName = "myAgonesClient";
                 }, configureHosting =>
                 {
-                    configureHosting.FailedRetryCount = 5;
                     configureHosting.CirtcuitBreakingDuration = TimeSpan.FromSeconds(10);
                     configureHosting.HandledEventsAllowedBeforeCirtcuitBreaking = 2;
                 });
@@ -137,7 +142,7 @@ namespace SampleHosting
                 .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug)) // HealtchCheckService Log
                 .UseAgones<AgonesSdk>(configureService =>
                 {
-                    configureService.OnRetry = (response, duration, context, logger) => logger.LogInformation("OnRetry!!!!!");
+                    configureService.HandledEventsAllowedBeforeCirtcuitBreaking = 2;
                 });
         }
 
@@ -239,6 +244,37 @@ namespace SampleHosting
             public Task Shutdown(CancellationToken ct = default)
             {
                 return Task.FromResult(true);
+            }
+        }
+        public class CircuitMockAgonesSdk : AgonesSdk
+        {
+            static readonly System.Text.Encoding encoding = new System.Text.UTF8Encoding(false);
+            static readonly Random random = new Random();
+            public CircuitMockAgonesSdk(AgonesSdkOptions options, IHttpClientFactory httpClientFactory) : base(options, httpClientFactory)
+            {
+            }
+
+            public override async Task Health(CancellationToken ct = default)
+            {
+                await CircuitRequest(ct); // success
+                // additional failure chance to raise  Circuit OnBreak.
+                if (random.Next(0, 5) == 0)
+                {
+                    await FailureRequest(ct); // failure
+                }
+            }
+
+            private Task CircuitRequest(CancellationToken ct)
+            {
+                return SendRequestAsync<NullResponse>("/api/circuit", "{}", HttpMethod.Post, (content) =>
+                {
+                    Console.WriteLine(encoding.GetString(content));
+                    return null;
+                }, ct);
+            }
+            private Task FailureRequest(CancellationToken ct)
+            {
+                return SendRequestAsync<NullResponse>("/api/failure", "{}", HttpMethod.Post, ct);
             }
         }
     }
