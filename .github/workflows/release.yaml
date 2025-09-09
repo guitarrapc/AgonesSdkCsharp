@@ -1,0 +1,54 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*" # only tag
+
+jobs:
+  build-dotnet:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: guitarrapc/actions/.github/actions/setup-dotnet@main
+      # build
+      - run: dotnet build -c Release -p:Version="${GIT_TAG}"
+        env:
+          GIT_TAG: ${{ github.ref_name }}
+      # pack
+      - run: dotnet pack -c Release -p:Version="${GIT_TAG}" -o ./.artifacts/
+        env:
+          GIT_TAG: ${{ github.ref_name }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nuget
+          path: ./.artifacts/
+
+  create-release:
+    needs: [build-dotnet]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    timeout-minutes: 5
+    steps:
+      - uses: guitarrapc/actions/.github/actions/setup-dotnet@main
+      # Create Release
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: nuget
+          path: ./nuget
+      - name: Create Relase
+        uses: guitarrapc/actions/.github/actions/create-release@main
+        with:
+          tag: ${{ github.ref_name }}
+          title: ${{ github.ref_name }}
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+      # upload nuget
+      - run: dotnet nuget push "./nuget/*.nupkg" --skip-duplicate -s https://api.nuget.org/v3/index.json -k "${NUGET_KEY}"
+        env:
+          NUGET_KEY: ${{ secrets.SYNCED_NUGET_KEY }}
