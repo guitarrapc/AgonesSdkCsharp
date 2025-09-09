@@ -4,26 +4,9 @@
     <TargetFramework>netstandard2.1</TargetFramework>
 
     <!-- NuGet -->
-    <Version>1.0.0</Version>
-    <AssemblyVersion>$(Version)</AssemblyVersion>
     <PackageId>AgonesSdkCsharp</PackageId>
-    <Authors>guitarrapc</Authors>
     <Description>AgonesSdk to call Agones API from .NET</Description>
-    <PackageProjectUrl>https://github.com/guitarrapc/AgonesSdkCsharp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/guitarrapc/AgonesSdkCsharp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>agones,kubernetes</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
