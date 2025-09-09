@@ -17,11 +17,4 @@
     <ProjectReference Include="..\AgonesSdkCsharp\AgonesSdkCsharp.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
 </Project>
