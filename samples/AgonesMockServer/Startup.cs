@@ -49,7 +49,7 @@ namespace AgonesMockServer
             }
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
+
 
             app.UseRouting();
 

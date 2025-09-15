@@ -135,7 +135,7 @@ namespace AgonesSdkCsharp
             return response;
         }
 
-        protected static TResponse JsonDeserializer<TResponse>(byte[] input) where TResponse : class 
+        protected static TResponse JsonDeserializer<TResponse>(byte[] input) where TResponse : class
             => JsonSerializer.Deserialize<TResponse>(input);
 
         public class ReserveBody
