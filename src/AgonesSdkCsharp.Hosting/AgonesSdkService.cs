@@ -48,7 +48,7 @@ namespace AgonesSdkCsharp.Hosting
         /// <param name="configureSdk"></param>
         /// <param name="configureHosting"></param>
         /// <returns></returns>
-        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder,  Action<AgonesSdkOptions> configureSdk, Action<AgonesSdkHostingOptions> configureHosting) where T : class, IAgonesSdk
+        public static IHostBuilder UseAgones<T>(this IHostBuilder hostBuilder, Action<AgonesSdkOptions> configureSdk, Action<AgonesSdkHostingOptions> configureHosting) where T : class, IAgonesSdk
         {
             return hostBuilder.ConfigureServices((hostContext, services) =>
             {

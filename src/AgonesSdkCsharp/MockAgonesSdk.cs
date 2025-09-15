@@ -72,7 +72,7 @@ namespace AgonesSdkCsharp
             };
             return response;
         }
-        
+
         public Task Allocate(CancellationToken ct = default)
         {
             return Task.FromResult(true);

@@ -62,7 +62,7 @@ namespace SampleHosting
         public static IHostBuilder CreateHostBuilderCircuiFailure(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureLogging((hostContext, logging) => logging.SetMinimumLevel(LogLevel.Debug))
-            .UseAgones<CircuitMockAgonesSdk>(configureHosting: hosting => 
+            .UseAgones<CircuitMockAgonesSdk>(configureHosting: hosting =>
             {
                 // circuit for 10 seconds. requests within this duration will be fail.
                 hosting.CirtcuitBreakingDuration = TimeSpan.FromSeconds(10);
