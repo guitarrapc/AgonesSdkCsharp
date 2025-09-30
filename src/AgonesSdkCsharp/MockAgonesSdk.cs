@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace AgonesSdkCsharp;
 
 public class MockAgonesSdk : IAgonesSdk
@@ -12,7 +8,6 @@ public class MockAgonesSdk : IAgonesSdk
 
     private readonly GameServerResponse mockResponse;
 
-    public MockAgonesSdk() { }
     public MockAgonesSdk(AgonesSdkOptions options)
     {
         Options = options;
@@ -29,13 +24,13 @@ public class MockAgonesSdk : IAgonesSdk
         var mockResponseStatus = new Status
         {
             Address = "127.0.0.1",
-            Ports = new[] {
+            Ports = [
                 new PortInfo
                 {
                     Name = "http",
                     Port = 8080,
                 }
-            },
+            ],
             State = "Ready",
         };
         var mockResponseObjectMeta = new ObjectMeta
@@ -46,22 +41,20 @@ public class MockAgonesSdk : IAgonesSdk
             ResourceVersion = "v1",
             Uid = "0",
             CreationTimestamp = new DateTime(2020, 1, 1, 0, 0, 0).ToString("yyyyMMdd_HHMMss"),
-            Annotations = new[]
+            Annotations = [
+                new Annotation
                 {
-                    new Annotation
-                    {
-                        Key = "key",
-                        Value = "value",
-                    },
+                    Key = "key",
+                    Value = "value",
                 },
-            Labels = new[]
+            ],
+            Labels = [
+                new Label
                 {
-                    new Label
-                    {
-                        Key = "key",
-                        Value = "value",
-                    },
+                    Key = "key",
+                    Value = "value",
                 },
+            ],
         };
         var response = new GameServerResponse()
         {
@@ -87,5 +80,5 @@ public class MockAgonesSdk : IAgonesSdk
 
     public async Task<GameServerResponse> GameServer(CancellationToken ct = default) => mockResponse;
 
-    public async Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default) { }
+    public void WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default) { }
 }

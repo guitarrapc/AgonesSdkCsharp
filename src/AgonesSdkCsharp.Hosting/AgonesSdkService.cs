@@ -2,13 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
-using System;
 
 namespace AgonesSdkCsharp.Hosting;
 
 public static class AgonesSdkService
 {
-    private static readonly Lazy<Random> jitterer = new Lazy<Random>(() => new Random());
+    private static readonly Lazy<Random> jitterer = new(() => new Random());
 
     /// <summary>
     /// Add Agones Sdk and run Health Check in the background.
@@ -58,7 +57,7 @@ public static class AgonesSdkService
             if (serviceOptions.UseDefaultHttpClientFactory)
             {
                 var sp = services.BuildServiceProvider();
-                var loggerFactory = sp.GetService<ILoggerFactory>();
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
                 var logger = loggerFactory.CreateLogger<AgonesHealthCheckService>();
                 var circuitLogger = loggerFactory.CreateLogger<AgonesCircuitDelegate>();
 

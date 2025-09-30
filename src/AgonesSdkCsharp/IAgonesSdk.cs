@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace AgonesSdkCsharp;
 
 // should implement: ready,allocate,setlabel,setannotation,gameserver,health,shutdown,watch
@@ -48,7 +44,7 @@ public interface IAgonesSdk
     /// </summary>
     /// <remarks>/WatchGameServer (stream)</remarks>
     /// <returns></returns>
-    Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct);
+    void WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct);
     /// <summary>
     /// Apply a Label to the backing GameServer metadata
     /// </summary>

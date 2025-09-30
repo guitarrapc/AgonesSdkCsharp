@@ -1,7 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace AgonesSdkCsharp.Hosting.Tests;
@@ -33,7 +30,6 @@ public class DependencyInjectionTest
         Assert.Null(await Record.ExceptionAsync(() => mockSdk.Ready(cts.Token)));
         Assert.Null(await Record.ExceptionAsync(() => mockSdk.Reserve(1, cts.Token)));
         Assert.Null(await Record.ExceptionAsync(() => mockSdk.Shutdown(cts.Token)));
-        Assert.Null(await Record.ExceptionAsync(() => mockSdk.WatchGameServer(res => { },
-        cts.Token)));
+        Assert.Null(Record.Exception(() => mockSdk.WatchGameServer(res => { }, cts.Token)));
     }
 }

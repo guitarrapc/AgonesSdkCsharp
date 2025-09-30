@@ -3,10 +3,6 @@ using AgonesSdkCsharp.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 //CreateHostBuilder(args).Build().Run();
 //CreateHostBuilderAgonesSettings(args).Build().Run();
@@ -144,40 +140,38 @@ public class FooSdk : IAgonesSdk
     {
         var mockResponseStatus = new Status
         {
-            Address = "127.0.0.1",
-            Ports = new[] {
-            new PortInfo
-            {
-                Name = "http",
-                Port = 8080,
-            }
-        },
             State = "Ready",
+            Address = "127.0.0.1",
+            Ports = [
+                new PortInfo
+                {
+                    Name = "http",
+                    Port = 8080,
+                }
+            ],
         };
         var mockResponseObjectMeta = new ObjectMeta
         {
             Name = "mock",
             Namespace = "default",
-            Generation = "gen1",
-            ResourceVersion = "v1",
             Uid = "0",
+            ResourceVersion = "v1",
+            Generation = "gen1",
             CreationTimestamp = new DateTime(2020, 1, 1, 0, 0, 0).ToString("yyyyMMdd_HHMMss"),
-            Annotations = new[]
+            Annotations = [
+                new Annotation
                 {
-            new Annotation
-            {
-                Key = "key",
-                Value = "value",
-            },
-        },
-            Labels = new[]
+                    Key = "key",
+                    Value = "value",
+                },
+            ],
+            Labels = [
+                new Label
                 {
-            new Label
-            {
-                Key = "key",
-                Value = "value",
-            },
-        },
+                    Key = "key",
+                    Value = "value",
+                },
+            ],
         };
         var response = new GameServerResponse()
         {
@@ -193,7 +187,7 @@ public class FooSdk : IAgonesSdk
     }
 
     public async Task<GameServerResponse> GameServer(CancellationToken ct = default) => mockResponse;
-    public async Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default) { }
+    public void WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default) { }
     public async Task Health(CancellationToken ct = default) { }
     public async Task Ready(CancellationToken ct = default) { }
     public async Task Reserve(int seconds, CancellationToken ct = default) { }
@@ -220,17 +214,17 @@ public class CircuitMockAgonesSdk : AgonesSdk
         }
     }
 
-    private Task CircuitRequest(CancellationToken ct)
+    private async Task CircuitRequest(CancellationToken ct)
     {
-        return SendRequestAsync<NullResponse>("/api/circuit", "{}", HttpMethod.Post, (content) =>
+        await SendRequestAsync<NullResponse>("/api/circuit", "{}", HttpMethod.Post, (content) =>
         {
             Console.WriteLine(encoding.GetString(content));
-            return null;
+            return default!;
         }, ct);
     }
 
-    private Task FailureRequest(CancellationToken ct)
+    private async Task FailureRequest(CancellationToken ct)
     {
-        return SendRequestAsync<NullResponse>("/api/failure", "{}", HttpMethod.Post, ct);
+        await SendRequestAsync<NullResponse>("/api/failure", "{}", HttpMethod.Post, ct);
     }
 }

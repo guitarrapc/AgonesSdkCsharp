@@ -1,17 +1,14 @@
-using System;
 using System.Collections.Concurrent;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AgonesSdkCsharp;
 
 // REST SDK
 // TODO: prepare gRPC Service
-// ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.2.0/sdks/go/sdk.go
+// ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.52.0/sdks/go/sdk.go
+// ref: sdk sample https://github.com/googleforgames/agones/blob/release-1.52.0/sdks/unity/AgonesSdk.cs
 public class AgonesSdk : IAgonesSdk
 {
     static readonly Encoding encoding = new UTF8Encoding(false);
@@ -60,7 +57,7 @@ public class AgonesSdk : IAgonesSdk
 
     public virtual async Task Reserve(int seconds, CancellationToken ct = default)
     {
-        var json = JsonSerializer.Serialize(new ReserveBody(seconds));
+        var json = JsonSerializer.Serialize(new Duration(seconds));
         await SendRequestAsync<NullResponse>("/reserve", json, ct);
     }
 
@@ -83,45 +80,46 @@ public class AgonesSdk : IAgonesSdk
 
     public virtual async Task<GameServerResponse> GameServer(CancellationToken ct = default)
     {
-        return await SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get, ct);
+        return await SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get, ct) ?? GameServerResponse.Empty;
     }
 
-    public virtual async Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default)
+    public virtual void WatchGameServer(Action<GameServerResponse> callback, CancellationToken ct = default)
     {
-        while (!ct.IsCancellationRequested)
+        Task.Run(async () =>
         {
-            try
-            {
-                var gs = await SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get, ct);
-                onResponse(gs);
-            }
-            catch (Exception)
-            {
-                continue;
-            }
-            finally
+            while (!ct.IsCancellationRequested)
             {
                 try
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, ct);
+                    var gs = await SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get, ct);
+                    if (gs is null)
+                    {
+                        continue;
+                    }
+                    callback(gs);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
                 {
-                    // ignore
+                    return;
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
             }
-        }
+        }, ct);
     }
 
     // private Methods
 
-    protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class
+    protected virtual async Task<TResponse?> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class
         => await SendRequestAsync<TResponse>(api, json, HttpMethod.Post, ct);
-    protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
-        => await SendRequestAsync<TResponse>(api, json, HttpMethod.Post, JsonDeserializer<TResponse>, ct);
-    protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, Func<byte[], TResponse> deserializer, CancellationToken ct) where TResponse : class
+    protected virtual async Task<TResponse?> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
+        => await SendRequestAsync<TResponse>(api, json, HttpMethod.Post, content => JsonSerializer.Deserialize<TResponse>(content), ct);
+    protected virtual async Task<TResponse?> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, Func<byte[], TResponse?> deserializer, CancellationToken ct) where TResponse : class
     {
-        TResponse response = null;
+        TResponse? response = default;
         if (ct.IsCancellationRequested) throw new OperationCanceledException(ct);
 
         var httpClient = _httpClientFactory.CreateClient(Options.HttpClientName);
@@ -158,19 +156,16 @@ public class AgonesSdk : IAgonesSdk
         return response;
     }
 
-    protected static TResponse JsonDeserializer<TResponse>(byte[] input) where TResponse : class
-        => JsonSerializer.Deserialize<TResponse>(input);
-
-    public class ReserveBody
+    public class Duration
     {
         public int Seconds { get; set; }
-        public ReserveBody(int seconds) => Seconds = seconds;
+        public Duration(int seconds) => Seconds = seconds;
     }
 
     public class KeyValueMessage
     {
-        public string Key;
-        public string Value;
+        public string Key { get; set; }
+        public string Value { get; set; }
         public KeyValueMessage(string key, string value) => (Key, Value) = (key, value);
     }
 }
