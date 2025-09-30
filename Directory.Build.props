@@ -3,21 +3,24 @@
     <LangVersion>13.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <IsPackable>false</IsPackable>
 
     <!-- NuGet -->
+    <IsPackable>false</IsPackable>
     <Version>1.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <Authors>guitarrapc</Authors>
-    <PackageProjectUrl>https://github.com/guitarrapc/AgonesSdkCsharp</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/guitarrapc/AgonesSdkCsharp</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <Copyright>© guitarapc</Copyright>
     <PackageTags>agones,kubernetes</PackageTags>
+    <PackageProjectUrl>https://github.com/guitarrapc/AgonesSdkCsharp</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)LICENSE" />
   </ItemGroup>
 </Project>
