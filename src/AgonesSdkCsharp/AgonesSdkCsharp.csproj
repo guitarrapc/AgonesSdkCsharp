@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <!-- NuGet -->
+    <IsPackable>true</IsPackable>
     <PackageId>AgonesSdkCsharp</PackageId>
     <Description>AgonesSdk to call Agones API from .NET</Description>
   </PropertyGroup>
