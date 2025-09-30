@@ -34,9 +34,15 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write # for NuGet Trusted Publish
     timeout-minutes: 5
     steps:
       - uses: guitarrapc/actions/.github/actions/setup-dotnet@main
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       # Create Release
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
@@ -51,4 +57,4 @@ jobs:
       # upload nuget
       - run: dotnet nuget push "./nuget/*.nupkg" --skip-duplicate -s https://api.nuget.org/v3/index.json -k "${NUGET_KEY}"
         env:
-          NUGET_KEY: ${{ secrets.SYNCED_NUGET_KEY }}
+          NUGET_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
