@@ -29,6 +29,7 @@ jobs:
           name: nuget
           path: ./publish/
           retention-days: 1
+          if-no-files-found: error
 
   create-release:
     needs: [build-dotnet]
