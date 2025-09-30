@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>13.0</LangVersion>
     <!-- NuGet -->
     <PackageId>AgonesSdkCsharp.Hosting</PackageId>
     <Description>Hosting AgonesSdkCsharp with GenericHost</Description>
