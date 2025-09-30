@@ -40,16 +40,19 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: guitarrapc/actions/.github/actions/setup-dotnet@main
+      # nuget
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ secrets.SYNCED_NUGET_USER }}
-      # Create Release
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: nuget
           path: ./nuget
+      - name: List Nuget
+        run: ls -al ./nuget
+      # release
       - name: Create Relase
         uses: guitarrapc/actions/.github/actions/create-release@main
         with:
