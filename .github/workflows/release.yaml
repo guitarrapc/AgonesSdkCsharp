@@ -21,13 +21,14 @@ jobs:
         env:
           GIT_TAG: ${{ github.ref_name }}
       # pack
-      - run: dotnet pack -c Release -p:Version="${GIT_TAG}" -o ./.artifacts/
+      - run: dotnet pack -c Release -p:Version="${GIT_TAG}" -o ./publish
         env:
           GIT_TAG: ${{ github.ref_name }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: nuget
-          path: ./.artifacts/
+          path: ./publish/
+          retention-days: 1
 
   create-release:
     needs: [build-dotnet]
