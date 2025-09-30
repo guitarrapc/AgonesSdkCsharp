@@ -1,16 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace AgonesSdkCsharp.Hosting
+namespace AgonesSdkCsharp.Hosting;
+
+internal static class TaskExtensions
 {
-    internal static class TaskExtensions
+    public static void FireAndForget(this Task task, ILogger logger)
     {
-        public static void FireAndForget(this Task task, ILogger logger = null)
+        task.ContinueWith(x =>
         {
-            task.ContinueWith(x =>
-            {
-                logger?.LogError("TaskUnhandled", x.Exception);
-            }, TaskContinuationOptions.OnlyOnFaulted);
-        }
+            logger.LogError("TaskUnhandled", x.Exception);
+        }, TaskContinuationOptions.OnlyOnFaulted);
     }
 }

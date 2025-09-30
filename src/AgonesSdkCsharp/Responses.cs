@@ -1,64 +1,84 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
-namespace AgonesSdkCsharp
+namespace AgonesSdkCsharp;
+
+public class NullResponse { }
+
+public class GameServerResponse
 {
-    public class NullResponse { }
-
-    public class GameServerResponse
+    public static GameServerResponse Empty => new GameServerResponse
     {
-        [JsonPropertyName("object/meta")]
-        public ObjectMeta ObjectMeta { get; set; }
-        [JsonPropertyName("status")]
-        public Status Status { get; set; }
-    }
+        ObjectMeta = new ObjectMeta
+        {
+            Name = string.Empty,
+            Namespace = string.Empty,
+            Uid = string.Empty,
+            ResourceVersion = string.Empty,
+            Generation = string.Empty,
+            CreationTimestamp = string.Empty,
+            Annotations = [],
+            Labels = [],
+        },
+        Status = new Status
+        {
+            State = string.Empty,
+            Address = string.Empty,
+            Ports = [],
+        }
+    };
 
-    public class ObjectMeta
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        [JsonPropertyName("namespace")]
-        public string Namespace { get; set; }
-        [JsonPropertyName("uid")]
-        public string Uid { get; set; }
-        [JsonPropertyName("resource/version")]
-        public string ResourceVersion { get; set; }
-        [JsonPropertyName("generation")]
-        public string Generation { get; set; }
-        [JsonPropertyName("creation/timestamp")]
-        public string CreationTimestamp { get; set; }
-        [JsonPropertyName("annotations")]
-        public Annotation[] Annotations { get; set; }
-        [JsonPropertyName("labels")]
-        public Label[] Labels { get; set; }
-    }
+    [JsonPropertyName("object/meta")]
+    public required ObjectMeta ObjectMeta { get; set; }
+    [JsonPropertyName("status")]
+    public required Status Status { get; set; }
+}
 
-    public class Annotation
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
+public class ObjectMeta
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; set; }
+    [JsonPropertyName("namespace")]
+    public required string Namespace { get; set; }
+    [JsonPropertyName("uid")]
+    public required string Uid { get; set; }
+    [JsonPropertyName("resource/version")]
+    public required string ResourceVersion { get; set; }
+    [JsonPropertyName("generation")]
+    public required string Generation { get; set; }
+    [JsonPropertyName("creation/timestamp")]
+    public required string CreationTimestamp { get; set; }
+    [JsonPropertyName("annotations")]
+    public required Annotation[] Annotations { get; set; }
+    [JsonPropertyName("labels")]
+    public required Label[] Labels { get; set; }
+}
 
-    public class Label
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
+public class Annotation
+{
+    public required string Key { get; set; }
+    public required string Value { get; set; }
+}
 
-    public class Status
-    {
-        [JsonPropertyName("state")]
-        public string State { get; set; }
-        [JsonPropertyName("address")]
-        public string Address { get; set; }
-        [JsonPropertyName("ports")]
-        public PortInfo[] Ports { get; set; }
-    }
+public class Label
+{
+    public required string Key { get; set; }
+    public required string Value { get; set; }
+}
 
-    public class PortInfo
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        [JsonPropertyName("port")]
-        public int Port { get; set; }
-    }
+public class Status
+{
+    [JsonPropertyName("state")]
+    public required string State { get; set; }
+    [JsonPropertyName("address")]
+    public required string Address { get; set; }
+    [JsonPropertyName("ports")]
+    public required PortInfo[] Ports { get; set; }
+}
+
+public class PortInfo
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; set; }
+    [JsonPropertyName("port")]
+    public required int Port { get; set; }
 }
