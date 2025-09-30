@@ -18,7 +18,6 @@ public class DependencyInjectionTest
         var mockSdk = serviceProvider.GetRequiredService<IAgonesSdk>();
 
         // Property
-        Assert.True(mockSdk.HealthEnabled);
         Assert.True(mockSdk.Options.CacheRequest);
         Assert.Equal(TimeSpan.FromSeconds(2), mockSdk.Options.HealthInterval);
         Assert.Equal("Agones", mockSdk.Options.HttpClientName);

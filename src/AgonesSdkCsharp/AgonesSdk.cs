@@ -17,7 +17,6 @@ public class AgonesSdk : IAgonesSdk
     static readonly Encoding encoding = new UTF8Encoding(false);
     static readonly Lazy<ConcurrentDictionary<string, StringContent>> jsonCache = new Lazy<ConcurrentDictionary<string, StringContent>>(() => new ConcurrentDictionary<string, StringContent>());
 
-    public bool HealthEnabled { get; set; } = true;
     public AgonesSdkOptions Options { get; }
     private bool? _isRunningOnKubernetes;
     public bool IsRunningOnKubernetes => _isRunningOnKubernetes ?? (bool)(_isRunningOnKubernetes = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST")));
@@ -69,7 +68,6 @@ public class AgonesSdk : IAgonesSdk
     {
         await SendRequestAsync<NullResponse>("/health", "{}", ct);
     }
-
 
     public virtual async Task SetLabel(string key, string value, CancellationToken ct = default)
     {

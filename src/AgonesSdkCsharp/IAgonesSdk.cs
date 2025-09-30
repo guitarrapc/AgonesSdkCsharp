@@ -11,7 +11,6 @@ namespace AgonesSdkCsharp;
 public interface IAgonesSdk
 {
     bool IsRunningOnKubernetes => false;
-    bool HealthEnabled { get; set; }
     AgonesSdkOptions Options { get; }
 
     /// <summary>
