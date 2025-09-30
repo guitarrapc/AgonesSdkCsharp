@@ -3,6 +3,8 @@
     <LangVersion>13.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- NuGet -->
     <IsPackable>false</IsPackable>
@@ -11,11 +13,12 @@
     <Authors>guitarrapc</Authors>
     <Copyright>© guitarapc</Copyright>
     <PackageTags>agones,kubernetes</PackageTags>
+    <PackageVersion>$(Version)</PackageVersion>
     <PackageProjectUrl>https://github.com/guitarrapc/AgonesSdkCsharp</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
