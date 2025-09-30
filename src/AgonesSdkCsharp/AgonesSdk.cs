@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -44,58 +44,83 @@ namespace AgonesSdkCsharp
             }
         }
 
-        public virtual Task Ready(CancellationToken ct = default)
+        public virtual async Task Ready(CancellationToken ct = default)
         {
-            return SendRequestAsync<NullResponse>("/ready", "{}", ct);
+            await SendRequestAsync<NullResponse>("/ready", "{}", ct);
         }
 
-        public virtual Task Allocate(CancellationToken ct = default)
+        public virtual async Task Allocate(CancellationToken ct = default)
         {
-            return SendRequestAsync<NullResponse>("/allocate", "{}", ct);
+            await SendRequestAsync<NullResponse>("/allocate", "{}", ct);
         }
 
-        public virtual Task Shutdown(CancellationToken ct = default)
+        public virtual async Task Shutdown(CancellationToken ct = default)
         {
-            return SendRequestAsync<NullResponse>("/shutdown", "{}", ct);
+            await SendRequestAsync<NullResponse>("/shutdown", "{}", ct);
         }
 
-        public virtual Task Health(CancellationToken ct = default)
-        {
-            return SendRequestAsync<NullResponse>("/health", "{}", ct);
-        }
-
-        public virtual Task<GameServerResponse> GameServer(CancellationToken ct = default)
-        {
-            return SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get, ct);
-        }
-
-        public virtual Task<GameServerResponse> Watch(CancellationToken ct = default)
-        {
-            return SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get, ct);
-        }
-
-        public virtual Task Reserve(int seconds, CancellationToken ct = default)
+        public virtual async Task Reserve(int seconds, CancellationToken ct = default)
         {
             var json = JsonSerializer.Serialize(new ReserveBody(seconds));
-            return SendRequestAsync<NullResponse>("/reserve", json, ct);
+            await SendRequestAsync<NullResponse>("/reserve", json, ct);
         }
 
-        public virtual Task Label(string key, string value, CancellationToken ct = default)
+        public virtual async Task Health(CancellationToken ct = default)
+        {
+            await SendRequestAsync<NullResponse>("/health", "{}", ct);
+        }
+
+
+        public virtual async Task SetLabel(string key, string value, CancellationToken ct = default)
         {
             var json = JsonSerializer.Serialize(new KeyValueMessage(key, value));
-            return SendRequestAsync<NullResponse>("/metadata/label", json, HttpMethod.Put, ct);
+            await SendRequestAsync<NullResponse>("/metadata/label", json, HttpMethod.Put, ct);
         }
 
-        public virtual Task Annotation(string key, string value, CancellationToken ct = default)
+        public virtual async Task SetAnnotation(string key, string value, CancellationToken ct = default)
         {
             var json = JsonSerializer.Serialize(new KeyValueMessage(key, value));
-            return SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put, ct);
+            await SendRequestAsync<NullResponse>("/metadata/annotation", json, HttpMethod.Put, ct);
         }
 
-        protected virtual Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class
-            => SendRequestAsync<TResponse>(api, json, HttpMethod.Post, ct);
-        protected virtual Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
-            => SendRequestAsync<TResponse>(api, json, HttpMethod.Post, JsonDeserializer<TResponse>, ct);
+        public virtual async Task<GameServerResponse> GameServer(CancellationToken ct = default)
+        {
+            return await SendRequestAsync<GameServerResponse>("/gameserver", "{}", HttpMethod.Get, ct);
+        }
+
+        public virtual async Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    var gs = await SendRequestAsync<GameServerResponse>("/watch/gameserver", "{}", HttpMethod.Get, ct);
+                    onResponse(gs);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+                finally
+                {
+                    try
+                    {
+                        await Task.Delay(1000);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        // private Methods
+
+        protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, CancellationToken ct) where TResponse : class
+            => await SendRequestAsync<TResponse>(api, json, HttpMethod.Post, ct);
+        protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, CancellationToken ct) where TResponse : class
+            => await SendRequestAsync<TResponse>(api, json, HttpMethod.Post, JsonDeserializer<TResponse>, ct);
         protected virtual async Task<TResponse> SendRequestAsync<TResponse>(string api, string json, HttpMethod method, Func<byte[], TResponse> deserializer, CancellationToken ct) where TResponse : class
         {
             TResponse response = null;

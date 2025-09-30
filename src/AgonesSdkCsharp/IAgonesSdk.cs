@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +49,7 @@ namespace AgonesSdkCsharp
         /// </summary>
         /// <remarks>/WatchGameServer (stream)</remarks>
         /// <returns></returns>
-        Task<GameServerResponse> Watch(CancellationToken ct);
+        Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct);
         /// <summary>
         /// Apply a Label to the backing GameServer metadata
         /// </summary>
@@ -59,7 +57,7 @@ namespace AgonesSdkCsharp
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        Task Label(string key, string value, CancellationToken ct);
+        Task SetLabel(string key, string value, CancellationToken ct);
         /// <summary>
         /// Apply a Annotation to the backing GameServer metadata
         /// </summary>
@@ -67,7 +65,7 @@ namespace AgonesSdkCsharp
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        Task Annotation(string key, string value, CancellationToken ct);
+        Task SetAnnotation(string key, string value, CancellationToken ct);
         /// <summary>
         /// Marks the GameServer as the Reserved state for Duration
         /// </summary>

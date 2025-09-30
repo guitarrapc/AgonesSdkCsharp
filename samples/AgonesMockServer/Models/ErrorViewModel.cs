@@ -1,5 +1,3 @@
-using System;
-
 namespace AgonesMockServer.Models
 {
     public class ErrorViewModel

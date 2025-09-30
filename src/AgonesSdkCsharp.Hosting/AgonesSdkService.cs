@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.CircuitBreaker;
 using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace AgonesSdkCsharp.Hosting
 {

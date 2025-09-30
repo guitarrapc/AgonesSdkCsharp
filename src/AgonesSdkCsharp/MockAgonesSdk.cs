@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,12 +30,12 @@ namespace AgonesSdkCsharp
             {
                 Address = "127.0.0.1",
                 Ports = new[] {
-                        new PortInfo
-                        {
-                            Name = "http",
-                            Port = 8080,
-                        }
-},
+                    new PortInfo
+                    {
+                        Name = "http",
+                        Port = 8080,
+                    }
+                },
                 State = "Ready",
             };
             var mockResponseObjectMeta = new ObjectMeta
@@ -73,48 +71,22 @@ namespace AgonesSdkCsharp
             return response;
         }
 
-        public Task Allocate(CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task Ready(CancellationToken ct = default) { }
 
-        public Task<GameServerResponse> GameServer(CancellationToken ct = default)
-        {
-            return Task.FromResult<GameServerResponse>(mockResponse);
-        }
-        public Task<GameServerResponse> Watch(CancellationToken ct = default)
-        {
-            return Task.FromResult<GameServerResponse>(mockResponse);
-        }
+        public async Task Allocate(CancellationToken ct = default) { }
 
-        public Task Health(CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task Shutdown(CancellationToken ct = default) { }
 
-        public Task Ready(CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task Reserve(int seconds, CancellationToken ct = default) { }
 
-        public Task Reserve(int seconds, CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task Health(CancellationToken ct = default) { }
 
-        public Task Annotation(string key, string value, CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task SetLabel(string key, string value, CancellationToken ct = default) { }
 
-        public Task Label(string key, string value, CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task SetAnnotation(string key, string value, CancellationToken ct = default) { }
 
-        public Task Shutdown(CancellationToken ct = default)
-        {
-            return Task.FromResult(true);
-        }
+        public async Task<GameServerResponse> GameServer(CancellationToken ct = default) => mockResponse;
+
+        public async Task WatchGameServer(Action<GameServerResponse> onResponse, CancellationToken ct = default) { }
     }
 }
