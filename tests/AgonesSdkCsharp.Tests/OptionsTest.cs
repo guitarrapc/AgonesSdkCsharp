@@ -1,6 +1,7 @@
 using Xunit;
 
 namespace AgonesSdkCsharp.Tests;
+
 public class OptionsTest
 {
     [Fact]
